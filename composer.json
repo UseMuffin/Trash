@@ -1,0 +1,49 @@
+{
+    "name": "muffin/trash",
+    "description": "Adds soft delete support to CakePHP 3 tables.",
+    "type": "cakephp-plugin",
+    "keywords": [
+        "cakephp",
+        "muffin",
+        "trash"
+    ],
+    "homepage": "https://github.com/usemuffin/trash",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jad Bitar",
+            "homepage": "http://jadb.io",
+            "role": "Author"
+        },
+        {
+            "name": "ADmad",
+            "homepage": "https://github.com/ADmad",
+            "role": "Author"
+        },
+        {
+            "name": "Others",
+            "homepage": "https://github.com/usemuffin/trash/graphs/contributors"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/usemuffin/trash/issues",
+        "source": "https://github.com/usemuffin/trash"
+    },
+    "require": {
+    },
+    "require-dev": {
+        "cakephp/cakephp": "~3.0",
+        "cakephp/cakephp-codesniffer": "2.*",
+        "phpunit/phpunit": "4.1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Muffin\\Trash\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Muffin\\Trash\\Test\\": "tests"
+        }
+    }
+}
