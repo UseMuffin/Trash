@@ -91,6 +91,7 @@ class TrashBehavior extends Behavior
             throw new RuntimeException();
         }
         $event->stopPropagation();
+        return true;
     }
 
     /**
