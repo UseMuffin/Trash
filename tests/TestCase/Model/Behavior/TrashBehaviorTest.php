@@ -85,11 +85,19 @@ class TrashBehaviorTest extends TestCase
         $this->assertCount(1, $this->Articles->find());
     }
 
-    public function testRestoreTrashAll()
+    public function testRestoreTrash()
     {
         $this->Articles->restoreTrash();
 
         $this->assertCount(3, $this->Articles->find());
+    }
+
+    public function testTrashAll()
+    {
+        $this->assertCount(1, $this->Articles->find());
+
+        $this->Articles->trashAll('1 = 1');
+        $this->assertCount(0, $this->Articles->find());
     }
 
     public function testRestoreTrashEntity()
