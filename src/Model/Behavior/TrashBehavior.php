@@ -181,13 +181,10 @@ class TrashBehavior extends Behavior
      */
     public function trashAll($conditions)
     {
-        $query = $this->query()
-            ->update()
-            ->set([$this->getTrashField(false) => new Time()])
-            ->where($conditions);
-        $statement = $query->execute();
-        $statement->closeCursor();
-        return $statement->rowCount();
+        return $this->_table->updateAll(
+            [$this->getTrashField(false) => new Time()],
+            $conditions
+        );
     }
 
     /**
