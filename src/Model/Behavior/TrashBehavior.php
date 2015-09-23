@@ -54,7 +54,8 @@ class TrashBehavior extends Behavior
         }
 
         if (empty($this->_defaultConfig['field']) &&
-            $field = Configure::read('Muffin/Trash.field')) {
+            $field = Configure::read('Muffin/Trash.field')
+        ) {
             $this->_defaultConfig['field'] = $field;
         }
 
@@ -62,7 +63,8 @@ class TrashBehavior extends Behavior
     }
 
     /**
-     * @inheritdoc
+     * Return list of events this behavior is interested in.
+     *
      * @return array
      */
     public function implementedEvents()
@@ -202,7 +204,7 @@ class TrashBehavior extends Behavior
      * Restores all (or given) trashed row(s).
      *
      * @param \Cake\ORM\Entity|null $entity to restore.
-     * @return bool|\Cake\Datasource\EntityInterface|int|mixed
+     * @return bool|\Cake\Datasource\EntityInterface|int
      */
     public function restoreTrash(Entity $entity = null)
     {
@@ -236,7 +238,7 @@ class TrashBehavior extends Behavior
     /**
      * Returns the table's field used to mark a `trashed` row.
      *
-     * @param bool|true $aliased or not.
+     * @param bool $aliased Should field be aliased or not. Default true.
      * @return string
      */
     public function getTrashField($aliased = true)
