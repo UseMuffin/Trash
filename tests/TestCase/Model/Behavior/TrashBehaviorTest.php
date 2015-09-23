@@ -64,6 +64,7 @@ class TrashBehaviorTest extends TestCase
         $article = $this->Articles->get(1);
         $result = $this->Articles->delete($article);
 
+        $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
     }
 
