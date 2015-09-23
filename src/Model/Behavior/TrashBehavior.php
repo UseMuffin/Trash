@@ -82,7 +82,7 @@ class TrashBehavior extends Behavior
      * @param \Cake\Event\Event $event Event.
      * @param \Cake\ORM\Entity $entity Entity.
      * @param \ArrayObject $options Options.
-     * @return void
+     * @return true
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
     public function beforeDelete(Event $event, Entity $entity, ArrayObject $options)
