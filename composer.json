@@ -30,11 +30,7 @@
         "source": "https://github.com/usemuffin/trash"
     },
     "require": {
-    },
-    "require-dev": {
-        "cakephp/cakephp": "~3.0",
-        "cakephp/cakephp-codesniffer": "2.*",
-        "phpunit/phpunit": "4.1.*"
+        "cakephp/cakephp": "~3.0"
     },
     "autoload": {
         "psr-4": {
