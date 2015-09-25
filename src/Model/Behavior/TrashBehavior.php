@@ -92,7 +92,14 @@ class TrashBehavior extends Behavior
         if (!$this->trash($entity)) {
             throw new RuntimeException();
         }
+
         $event->stopPropagation();
+
+        $event->subject()->dispatchEvent('Model.afterDelete', [
+            'entity' => $entity,
+            'options' => $options
+        ]);
+
         return true;
     }
 
