@@ -5,10 +5,10 @@ use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\I18n\Time;
 use Cake\ORM\Behavior;
-use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use RuntimeException;
@@ -81,13 +81,13 @@ class TrashBehavior extends Behavior
     /**
      * Callback to never really delete a record but instead mark it as `trashed`.
      *
-     * @param \Cake\Event\Event $event Event.
-     * @param \Cake\ORM\Entity $entity Entity.
+     * @param \Cake\Event\Event $event The beforeDelete event that was fired.
+     * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted.
      * @param \ArrayObject $options Options.
      * @return true
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
-    public function beforeDelete(Event $event, Entity $entity, ArrayObject $options)
+    public function beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!$this->trash($entity)) {
             throw new RuntimeException();
@@ -99,11 +99,11 @@ class TrashBehavior extends Behavior
     /**
      * Trash given entity.
      *
-     * @param \Cake\ORM\Entity $entity Entity.
+     * @param \Cake\Datasource\EntityInterface $entity EntityInterface.
      * @return bool
      * @throws \RuntimeException if no primary key is set on entity.
      */
-    public function trash(Entity $entity)
+    public function trash(EntityInterface $entity)
     {
         $field = $this->getTrashField(false);
         $primaryKey = $this->_table->primaryKey();
@@ -200,14 +200,14 @@ class TrashBehavior extends Behavior
     /**
      * Restores all (or given) trashed row(s).
      *
-     * @param \Cake\ORM\Entity|null $entity to restore.
-     * @return bool|\Cake\Datasource\EntityInterface|int
+     * @param \Cake\Datasource\EntityInterface|null $entity to restore.
+     * @return bool|\Cake\Datasource\EntityInterface|int|mixed
      */
-    public function restoreTrash(Entity $entity = null)
+    public function restoreTrash(EntityInterface $entity = null)
     {
         $data = [$this->getTrashField(false) => null];
 
-        if ($entity instanceof Entity) {
+        if ($entity instanceof EntityInterface) {
             if ($entity->dirty()) {
                 throw new RuntimeException('Can not restore from a dirty entity.');
             }
