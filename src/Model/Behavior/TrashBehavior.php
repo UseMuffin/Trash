@@ -47,7 +47,7 @@ class TrashBehavior extends Behavior
     {
         $columns = $table->schema()->columns();
         foreach (['deleted', 'trashed'] as $name) {
-            if (in_array($name, $columns)) {
+            if (in_array($name, $columns, true)) {
                 $this->_defaultConfig['field'] = $name;
                 break;
             }
@@ -60,21 +60,41 @@ class TrashBehavior extends Behavior
         }
 
         parent::__construct($table, $config);
+
+        if (array_key_exists('events', $config)) {
+            $this->config('events', $config['events'], false);
+        }
     }
 
     /**
      * Return list of events this behavior is interested in.
      *
      * @return array
+     * @throws \InvalidArgumentException When events are configured in an invalid format.
      */
     public function implementedEvents()
     {
         $events = [];
-        foreach ((array)$this->config('events') as $event) {
-            list(, $method) = explode('.', $event);
-            $events[$event] = $method;
+        foreach ((array)$this->config('events') as $eventKey => $event) {
+            if (is_numeric($eventKey)) {
+                $eventKey = $event;
+                $event = null;
+            }
+            if ($event === null || is_string($event)) {
+                $event = ['callable' => $event];
+            }
+            if (!is_array($event)) {
+                throw new \InvalidArgumentException('Event should be string or array');
+            }
+            $priority = $this->config('priority');
+            if (!array_key_exists('callable', $event) || $event['callable'] === null) {
+                list(, $event['callable']) = pluginSplit($eventKey);
+            }
+            if ($priority && !array_key_exists('priority', $event)) {
+                $event['priority'] = $priority;
+            }
+            $events[$eventKey] = $event;
         }
-
         return $events;
     }
 
