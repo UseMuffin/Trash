@@ -249,13 +249,20 @@ class TrashBehaviorTest extends TestCase
                     ],
                 ],
             ],
-            '@disableDefaultsWithFalse' => [
+            '@inheritDefaultsWhenEmptyArray' => [
                 '$config' => [
-                    'events' => false,
+                    'events' => [],
                 ],
-                '$implementedEvents' => [],
+                '$implementedEvents' => [
+                    'Model.beforeDelete' => [
+                        'callable' => 'beforeDelete'
+                    ],
+                    'Model.beforeFind' => [
+                        'callable' => 'beforeFind'
+                    ],
+                ],
             ],
-            '@disableDefaultsWithEmptyArray' => [
+            '@disableDefaultsWhenFalse' => [
                 '$config' => [
                     'events' => false,
                 ],

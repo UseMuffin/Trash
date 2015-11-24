@@ -64,7 +64,7 @@ class TrashBehavior extends Behavior
 
         parent::__construct($table, $config);
 
-        if (array_key_exists('events', $config)) {
+        if (!empty($config['events'])) {
             $this->config('events', $config['events'], false);
         }
     }
