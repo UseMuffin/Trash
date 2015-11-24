@@ -249,9 +249,15 @@ class TrashBehaviorTest extends TestCase
                     ],
                 ],
             ],
-            '@disableDefaults' => [
+            '@disableDefaultsWithFalse' => [
                 '$config' => [
-                    'events' => [],
+                    'events' => false,
+                ],
+                '$implementedEvents' => [],
+            ],
+            '@disableDefaultsWithEmptyArray' => [
+                '$config' => [
+                    'events' => false,
                 ],
                 '$implementedEvents' => [],
             ],

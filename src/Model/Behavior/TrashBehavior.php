@@ -24,11 +24,14 @@ class TrashBehavior extends Behavior
      * Default configuration.
      *
      * - field: the name of the datetime field to use for tracking `trashed` records.
+     * - priority: the default priority for events
+     * - events: the list of events to enable (also accepts arrays in `implementedEvents()`-compatible format)
      *
      * @var array
      */
     protected $_defaultConfig = [
         'field' => null,
+        'priority' => null,
         'events' => [
             'Model.beforeDelete',
             'Model.beforeFind',
@@ -75,6 +78,9 @@ class TrashBehavior extends Behavior
     public function implementedEvents()
     {
         $events = [];
+        if ($this->config('events') === false) {
+            return $events;
+        }
         foreach ((array)$this->config('events') as $eventKey => $event) {
             if (is_numeric($eventKey)) {
                 $eventKey = $event;
@@ -140,7 +146,7 @@ class TrashBehavior extends Behavior
         }
 
         return (bool)$this->_table->updateAll(
-            [$this->getTrashField(false) => new Time()],
+            [$field => new Time()],
             [$primaryKey => $entity->{$primaryKey}]
         );
     }
