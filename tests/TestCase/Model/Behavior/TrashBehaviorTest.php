@@ -28,6 +28,14 @@ class TrashBehaviorTest extends TestCase
         ]);
 
         $this->Comments = TableRegistry::get('Muffin/Trash.Comments', ['table' => 'trash_comments']);
+        $this->Comments->belongsTo('Articles', [
+            'className' => 'Muffin/Trash.Articles',
+            'foreignKey' => 'article_id',
+        ]);
+        $this->Comments->addBehavior('CounterCache', ['Articles' => [
+            'comment_count',
+            'total_comment_count' => ['finder' => 'withTrashed']
+        ]]);
         $this->Comments->addBehavior('Muffin/Trash.Trash');
 
         $this->Articles = TableRegistry::get('Muffin/Trash.Articles', ['table' => 'trash_articles']);
@@ -119,5 +127,15 @@ class TrashBehaviorTest extends TestCase
     {
         $result = $this->Users->get(1, ['contain' => ['Articles']]);
         $this->assertCount(1, $result->articles);
+    }
+
+    public function testInteroperabilityWithCounterCache()
+    {
+        $comment = $this->Comments->get(1);
+        $this->Comments->delete($comment);
+        $result = $this->Articles->get(1);
+
+        $this->assertEquals(0, $result->comment_count);
+        $this->assertEquals(2, $result->total_comment_count);
     }
 }
