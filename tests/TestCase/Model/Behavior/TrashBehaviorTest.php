@@ -238,9 +238,9 @@ class TrashBehaviorTest extends TestCase
     public function provideConfigsForImplementedEventsTest()
     {
         return [
-            '@inheritDefaults' => [
-                '$config' => [],
-                '$implementedEvents' => [
+            'No event config inherits default events' => [
+                [],
+                [
                     'Model.beforeDelete' => [
                         'callable' => 'beforeDelete'
                     ],
@@ -249,11 +249,11 @@ class TrashBehaviorTest extends TestCase
                     ],
                 ],
             ],
-            '@inheritDefaultsWhenEmptyArray' => [
-                '$config' => [
+            'Event config with empty array inherits default events' => [
+                [
                     'events' => [],
                 ],
-                '$implementedEvents' => [
+                [
                     'Model.beforeDelete' => [
                         'callable' => 'beforeDelete'
                     ],
@@ -262,38 +262,38 @@ class TrashBehaviorTest extends TestCase
                     ],
                 ],
             ],
-            '@disableDefaultsWhenFalse' => [
-                '$config' => [
+            'Event config with false disables default events' => [
+                [
                     'events' => false,
                 ],
-                '$implementedEvents' => [],
+                [],
             ],
-            '@numericArray' => [
-                '$config' => [
+            'Event config with event key as value' => [
+                [
                     'events' => [
                         'Model.beforeDelete',
                     ],
                 ],
-                '$implementedEvents' => [
+                [
                     'Model.beforeDelete' => [
                         'callable' => 'beforeDelete',
                     ],
                 ],
             ],
-            '@assocArray' => [
-                '$config' => [
+            'Event config with method name as value' => [
+                [
                     'events' => [
                         'Model.beforeFind' => 'beforeFind',
                     ],
                 ],
-                '$implementedEvents' => [
+                [
                     'Model.beforeFind' => [
                         'callable' => 'beforeFind'
                     ],
                 ],
             ],
-            '@callables' => [
-                '$config' => [
+            'Event config with callables' => [
+                [
                     'events' => [
                         'Model.beforeDelete' => [
                             'callable' => function () {
@@ -305,7 +305,7 @@ class TrashBehaviorTest extends TestCase
                         ],
                     ],
                 ],
-                '$implementedEvents' => [
+                [
                     'Model.beforeDelete' => [
                         'callable' => function () {
                         }
@@ -316,8 +316,8 @@ class TrashBehaviorTest extends TestCase
                     ],
                 ],
             ],
-            '@multipleParams' => [
-                '$config' => [
+            'Event config with multiple options' => [
+                [
                     'events' => [
                         'Model.beforeDelete' => [
                             'callable' => 'beforeDelete',
@@ -325,22 +325,22 @@ class TrashBehaviorTest extends TestCase
                         ],
                     ],
                 ],
-                '$implementedEvents' => [
+                [
                     'Model.beforeDelete' => [
                         'callable' => 'beforeDelete',
                         'passParams' => true,
                     ],
                 ],
             ],
-            '@priority' => [
-                '$config' => [
+            'Event config with default and event priorities' => [
+                [
                     'priority' => 1,
                     'events' => [
                         'Model.beforeDelete',
                         'Model.beforeFind' => ['priority' => 5],
                     ],
                 ],
-                '$implementedEvents' => [
+                [
                     'Model.beforeDelete' => [
                         'callable' => 'beforeDelete',
                         'priority' => 1,
