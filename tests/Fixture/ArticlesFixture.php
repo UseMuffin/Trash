@@ -1,6 +1,7 @@
 <?php
 namespace Muffin\Trash\Test\Fixture;
 
+use Cake\I18n\Time;
 use Cake\TestSuite\Fixture\TestFixture;
 
 class ArticlesFixture extends TestFixture
@@ -16,6 +17,8 @@ class ArticlesFixture extends TestFixture
         'id' => ['type' => 'integer'],
         'title' => ['type' => 'string', 'null' => false],
         'sub_title' => ['type' => 'string', 'null' => false],
+        'comment_count' => ['type' => 'integer', 'null' => true],
+        'total_comment_count' => ['type' => 'integer', 'null' => true],
         'trashed' => ['type' => 'datetime', 'null' => true],
         'created' => ['type' => 'datetime', 'null' => true],
         'modified' => ['type' => 'datetime', 'null' => true],
@@ -35,7 +38,7 @@ class ArticlesFixture extends TestFixture
 
     public function init()
     {
-        $created = $modified = date('Y-m-d H:i:s');
+        $created = $modified = new Time();
         array_walk($this->records, function (&$record) use ($created, $modified) {
             $record += compact('created', 'modified');
         });

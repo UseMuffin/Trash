@@ -5,10 +5,10 @@ use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\I18n\Time;
 use Cake\ORM\Behavior;
-use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use RuntimeException;
@@ -24,11 +24,14 @@ class TrashBehavior extends Behavior
      * Default configuration.
      *
      * - field: the name of the datetime field to use for tracking `trashed` records.
+     * - priority: the default priority for events
+     * - events: the list of events to enable (also accepts arrays in `implementedEvents()`-compatible format)
      *
      * @var array
      */
     protected $_defaultConfig = [
         'field' => null,
+        'priority' => null,
         'events' => [
             'Model.beforeDelete',
             'Model.beforeFind',
@@ -47,7 +50,7 @@ class TrashBehavior extends Behavior
     {
         $columns = $table->schema()->columns();
         foreach (['deleted', 'trashed'] as $name) {
-            if (in_array($name, $columns)) {
+            if (in_array($name, $columns, true)) {
                 $this->_defaultConfig['field'] = $name;
                 break;
             }
@@ -60,50 +63,80 @@ class TrashBehavior extends Behavior
         }
 
         parent::__construct($table, $config);
+
+        if (!empty($config['events'])) {
+            $this->config('events', $config['events'], false);
+        }
     }
 
     /**
      * Return list of events this behavior is interested in.
      *
      * @return array
+     * @throws \InvalidArgumentException When events are configured in an invalid format.
      */
     public function implementedEvents()
     {
         $events = [];
-        foreach ((array)$this->config('events') as $event) {
-            list(, $method) = explode('.', $event);
-            $events[$event] = $method;
+        if ($this->config('events') === false) {
+            return $events;
         }
-
+        foreach ((array)$this->config('events') as $eventKey => $event) {
+            if (is_numeric($eventKey)) {
+                $eventKey = $event;
+                $event = null;
+            }
+            if ($event === null || is_string($event)) {
+                $event = ['callable' => $event];
+            }
+            if (!is_array($event)) {
+                throw new \InvalidArgumentException('Event should be string or array');
+            }
+            $priority = $this->config('priority');
+            if (!array_key_exists('callable', $event) || $event['callable'] === null) {
+                list(, $event['callable']) = pluginSplit($eventKey);
+            }
+            if ($priority && !array_key_exists('priority', $event)) {
+                $event['priority'] = $priority;
+            }
+            $events[$eventKey] = $event;
+        }
         return $events;
     }
 
     /**
      * Callback to never really delete a record but instead mark it as `trashed`.
      *
-     * @param \Cake\Event\Event $event Event.
-     * @param \Cake\ORM\Entity $entity Entity.
+     * @param \Cake\Event\Event $event The beforeDelete event that was fired.
+     * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted.
      * @param \ArrayObject $options Options.
      * @return true
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
-    public function beforeDelete(Event $event, Entity $entity, ArrayObject $options)
+    public function beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!$this->trash($entity)) {
             throw new RuntimeException();
         }
+
         $event->stopPropagation();
+
+        $event->subject()->dispatchEvent('Model.afterDelete', [
+            'entity' => $entity,
+            'options' => $options
+        ]);
+
         return true;
     }
 
     /**
      * Trash given entity.
      *
-     * @param \Cake\ORM\Entity $entity Entity.
+     * @param \Cake\Datasource\EntityInterface $entity EntityInterface.
      * @return bool
      * @throws \RuntimeException if no primary key is set on entity.
      */
-    public function trash(Entity $entity)
+    public function trash(EntityInterface $entity)
     {
         $field = $this->getTrashField(false);
         $primaryKey = $this->_table->primaryKey();
@@ -113,7 +146,7 @@ class TrashBehavior extends Behavior
         }
 
         return (bool)$this->_table->updateAll(
-            [$this->getTrashField(false) => new Time()],
+            [$field => new Time()],
             [$primaryKey => $entity->{$primaryKey}]
         );
     }
@@ -200,14 +233,14 @@ class TrashBehavior extends Behavior
     /**
      * Restores all (or given) trashed row(s).
      *
-     * @param \Cake\ORM\Entity|null $entity to restore.
-     * @return bool|\Cake\Datasource\EntityInterface|int
+     * @param \Cake\Datasource\EntityInterface|null $entity to restore.
+     * @return bool|\Cake\Datasource\EntityInterface|int|mixed
      */
-    public function restoreTrash(Entity $entity = null)
+    public function restoreTrash(EntityInterface $entity = null)
     {
         $data = [$this->getTrashField(false) => null];
 
-        if ($entity instanceof Entity) {
+        if ($entity instanceof EntityInterface) {
             if ($entity->dirty()) {
                 throw new RuntimeException('Can not restore from a dirty entity.');
             }
