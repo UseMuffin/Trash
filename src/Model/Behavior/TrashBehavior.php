@@ -138,17 +138,18 @@ class TrashBehavior extends Behavior
      */
     public function trash(EntityInterface $entity)
     {
-        $field = $this->getTrashField(false);
         $primaryKey = $this->_table->primaryKey();
 
         if (empty($entity->{$primaryKey})) {
             throw new RuntimeException();
         }
 
-        return (bool)$this->_table->updateAll(
-            [$field => new Time()],
-            [$primaryKey => $entity->{$primaryKey}]
-        );
+        $data = [$this->getTrashField(false) => new Time()];
+        $entity->set($data);
+        if ($this->_table->save($entity)) {
+            return true;
+        }
+        return false;
     }
 
     /**
