@@ -1,11 +1,12 @@
 {
     "name": "muffin/trash",
-    "description": "Adds soft delete support to CakePHP 3 tables.",
+    "description": "Adds soft delete support to CakePHP 3  ORM tables.",
     "type": "cakephp-plugin",
     "keywords": [
         "cakephp",
         "muffin",
-        "trash"
+        "trash",
+        "orm"
     ],
     "homepage": "https://github.com/usemuffin/trash",
     "license": "MIT",
