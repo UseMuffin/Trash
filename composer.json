@@ -1,11 +1,12 @@
 {
     "name": "muffin/trash",
-    "description": "Adds soft delete support to CakePHP 3 tables.",
+    "description": "Adds soft delete support to CakePHP 3  ORM tables.",
     "type": "cakephp-plugin",
     "keywords": [
         "cakephp",
         "muffin",
-        "trash"
+        "trash",
+        "orm"
     ],
     "homepage": "https://github.com/usemuffin/trash",
     "license": "MIT",
@@ -30,10 +31,11 @@
         "source": "https://github.com/usemuffin/trash"
     },
     "require": {
-        "cakephp/cakephp": "^3.0"
+        "cakephp/orm": "3.*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "^4.8",
+        "cakephp/cakephp": "3.*"
     },
     "autoload": {
         "psr-4": {
