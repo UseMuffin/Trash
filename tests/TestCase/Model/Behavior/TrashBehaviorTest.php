@@ -106,6 +106,20 @@ class TrashBehaviorTest extends TestCase
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
     }
+    
+    /**
+     * Test trash function
+     *
+     * @return void
+     */
+    public function testTrash()
+    {
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->trash($article);
+
+        $this->assertTrue($result);
+        $this->assertCount(3, $this->Articles->find('withTrashed'));
+    }
 
     /**
      * Test it can find only trashed records.
@@ -209,6 +223,21 @@ class TrashBehaviorTest extends TestCase
     {
         $comment = $this->Comments->get(1);
         $this->Comments->delete($comment);
+        $result = $this->Articles->get(1);
+
+        $this->assertEquals(0, $result->comment_count);
+        $this->assertEquals(2, $result->total_comment_count);
+    }
+    
+    /**
+     * Test that it can work alongside CounterCache behavior and trash method.
+     *
+     * @return void
+     */
+    public function testInteroperabilityWithCounterCacheAndTrashMethod()
+    {
+        $comment = $this->Comments->get(1);
+        $this->Comments->trash($comment);
         $result = $this->Articles->get(1);
 
         $this->assertEquals(0, $result->comment_count);
