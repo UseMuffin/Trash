@@ -129,7 +129,7 @@ class TrashBehaviorTest extends TestCase
     public function testTrashNonAccessibleProperty()
     {
         $article = $this->Articles->get(1);
-        $article->accesible('trashed', false);
+        $article->accessible('trashed', false);
         $result = $this->Articles->trash($article);
 
         $this->assertTrue($result);
