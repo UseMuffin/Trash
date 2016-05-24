@@ -145,7 +145,7 @@ class TrashBehavior extends Behavior
         }
 
         $data = [$this->getTrashField(false) => new Time()];
-        $entity->set($data);
+        $entity->set($data, ['guard' => false]);
         if ($this->_table->save($entity)) {
             return true;
         }
@@ -245,7 +245,7 @@ class TrashBehavior extends Behavior
             if ($entity->dirty()) {
                 throw new RuntimeException('Can not restore from a dirty entity.');
             }
-            $entity->set($data);
+            $entity->set($data, ['guard' => false]);
             return $this->_table->save($entity);
         }
 
