@@ -120,6 +120,21 @@ class TrashBehaviorTest extends TestCase
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
     }
+    
+    /**
+     * Test trash function with property not accessible
+     *
+     * @return void
+     */
+    public function testTrashNonAccessibleProperty()
+    {
+        $article = $this->Articles->get(1);
+        $article->accesible('trashed', false);
+        $result = $this->Articles->trash($article);
+
+        $this->assertTrue($result);
+        $this->assertCount(3, $this->Articles->find('withTrashed'));
+    }
 
     /**
      * Test it can find only trashed records.
