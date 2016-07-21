@@ -260,6 +260,75 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Ensure that when trashing it will cascade into related dependent records
+     *
+     * @return void
+     */
+    public function testCascadingTrash()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $article = $this->Articles->get(1);
+        $this->Articles->trash($article);
+
+        $article = $this->Articles->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->contain(['Comments' => [
+                'finder' => 'withTrashed'
+            ]])
+            ->first();
+
+        $this->assertNotEmpty($article->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->trashed);
+
+        $this->assertNotEmpty($article->comments[0]->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+    }
+
+    /**
+     * Ensure that when trashing it will cascade into related dependent records
+     *
+     * @return void
+     */
+    public function testCascadingUntrash()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $article = $this->Articles->get(1);
+        $this->Articles->trash($article);
+
+        $article = $this->Articles->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->contain(['Comments' => [
+                'finder' => 'withTrashed'
+            ]])
+            ->first();
+
+        $this->assertNotEmpty($article->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->trashed);
+
+        $this->assertNotEmpty($article->comments[0]->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+
+        $this->Articles->cascadingRestoreTrash($article);
+
+        $article = $this->Articles->find()
+            ->where(['Articles.id' => 1])
+            ->contain(['Comments'])
+            ->first();
+
+        $this->assertEmpty($article->trashed);
+        $this->assertNotInstanceOf('Cake\I18n\Time', $article->trashed);
+
+        $this->assertEmpty($article->comments[0]->trashed);
+        $this->assertNotInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+    }
+
+    /**
      * Test the implementedEvents method.
      *
      * @dataProvider provideConfigsForImplementedEventsTest
