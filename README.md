@@ -62,6 +62,14 @@ $this->addBehavior('Muffin/Trash.Trash', [
 ]);
 ```
 
+### Cascading deletion
+If you'd like to have related records marked as trashed when deleting a parent item, you can just attach the behavior 
+to the related table classes, and set the `'dependent' => true, 'cascadeCallbacks' => true` options in the table 
+relationships.
+
+This works on relationships where the item being deleted in the owning side of the relationship. Which means that the 
+related table should contain the foreign key.
+
 ### Custom Finders
 
 - **onlyTrashed** - helps getting only those trashed records.

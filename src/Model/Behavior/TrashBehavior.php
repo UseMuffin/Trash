@@ -8,6 +8,7 @@ use Cake\Database\Expression\UnaryExpression;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\I18n\Time;
+use Cake\ORM\Association;
 use Cake\ORM\Behavior;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
@@ -101,6 +102,7 @@ class TrashBehavior extends Behavior
             }
             $events[$eventKey] = $event;
         }
+
         return $events;
     }
 
@@ -144,11 +146,19 @@ class TrashBehavior extends Behavior
             throw new RuntimeException();
         }
 
+        foreach ($this->_table->associations() as $association) {
+            if ($this->_isRecursable($association, $this->_table)) {
+                $association->cascadeDelete($entity, ['_primary' => false]);
+            }
+        }
+
         $data = [$this->getTrashField(false) => new Time()];
         $entity->set($data, ['guard' => false]);
+
         if ($this->_table->save($entity)) {
             return true;
         }
+
         return false;
     }
 
@@ -246,10 +256,30 @@ class TrashBehavior extends Behavior
                 throw new RuntimeException('Can not restore from a dirty entity.');
             }
             $entity->set($data, ['guard' => false]);
+            
             return $this->_table->save($entity);
         }
 
         return $this->_table->updateAll($data, $this->_getUnaryExpression());
+    }
+
+    /**
+     * Restore an item from trashed status and all its related data
+     *
+     * @param \Cake\Datasource\EntityInterface $entity Entity instance
+     * @return bool|\Cake\Datasource\EntityInterface|int
+     */
+    public function cascadingRestoreTrash(EntityInterface $entity = null)
+    {
+        $result = $this->restoreTrash($entity);
+
+        foreach ($this->_table->associations() as $association) {
+            if ($this->_isRecursable($association, $this->_table)) {
+                return $association->target()->cascadingRestoreTrash();
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -281,5 +311,24 @@ class TrashBehavior extends Behavior
         }
 
         return $field;
+    }
+
+    /**
+     * Find out if an associated Table has the Trash behaviour and it's records can be trashed
+     *
+     * @param \Cake\ORM\Association $association The table association
+     * @param \Cake\ORM\Table $table The table instance to check
+     * @return bool
+     */
+    protected function _isRecursable(Association $association, Table $table)
+    {
+        if ($association->target()->hasBehavior('Trash')
+            && $association->isOwningSide($table)
+            && $association->dependent()
+            && $association->cascadeCallbacks()) {
+            return true;
+        }
+
+        return false;
     }
 }
