@@ -12,7 +12,7 @@ Adds "soft"-delete support to CakePHP 3 tables.
 Using [Composer][composer]:
 
 ```
-composer require muffin/trash:dev-master
+composer require muffin/trash
 ```
 
 You then need to load the plugin. You can use the shell command:
