@@ -140,9 +140,9 @@ class TrashBehavior extends Behavior
      */
     public function trash(EntityInterface $entity)
     {
-        $primaryKey = $this->_table->primaryKey();
+        $primaryKey = (array)$this->_table->primaryKey();
 
-        if (empty($entity->{$primaryKey})) {
+        if (!$entity->has($primaryKey)) {
             throw new RuntimeException();
         }
 
@@ -256,7 +256,7 @@ class TrashBehavior extends Behavior
                 throw new RuntimeException('Can not restore from a dirty entity.');
             }
             $entity->set($data, ['guard' => false]);
-            
+
             return $this->_table->save($entity);
         }
 
