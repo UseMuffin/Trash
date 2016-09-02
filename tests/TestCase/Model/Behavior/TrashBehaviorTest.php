@@ -24,6 +24,7 @@ class TrashBehaviorTest extends TestCase
         'plugin.Muffin/Trash.comments',
         'plugin.Muffin/Trash.users',
         'plugin.Muffin/Trash.articles_users',
+        'plugin.Muffin/Trash.composite_articles_users',
     ];
 
     /**
@@ -68,6 +69,9 @@ class TrashBehaviorTest extends TestCase
         ]);
 
         $this->Behavior = $this->Articles->behaviors()->Trash;
+
+        $this->CompositeArticlesUsers = TableRegistry::get('Muffin/Trash.CompositeArticlesUsers', ['table' => 'trash_composite_articles_users']);
+        $this->CompositeArticlesUsers->addBehavior('Muffin/Trash.Trash');
     }
 
     /**
@@ -106,7 +110,21 @@ class TrashBehaviorTest extends TestCase
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
     }
-    
+
+    /**
+     * Test trash function with composite primary keys
+     *
+     * @return void
+     */
+    public function testTrashComposite()
+    {
+        $item = $this->CompositeArticlesUsers->get([3, 1]);
+        $result = $this->CompositeArticlesUsers->trash($item);
+
+        $this->assertTrue($result);
+        $this->assertCount(1, $this->CompositeArticlesUsers->find('onlyTrashed'));
+    }
+
     /**
      * Test trash function
      *
@@ -120,7 +138,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
     }
-    
+
     /**
      * Test trash function with property not accessible
      *
@@ -243,7 +261,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertEquals(0, $result->comment_count);
         $this->assertEquals(2, $result->total_comment_count);
     }
-    
+
     /**
      * Test that it can work alongside CounterCache behavior and trash method.
      *
