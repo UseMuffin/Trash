@@ -1,7 +1,7 @@
 # Trash
 
 [![Build Status](https://img.shields.io/travis/UseMuffin/Trash/master.svg?style=flat-square)](https://travis-ci.org/UseMuffin/Trash)
-[![Coverage](https://img.shields.io/coveralls/UseMuffin/Trash/master.svg?style=flat-square)](https://coveralls.io/r/UseMuffin/Trash)
+[![Coverage](https://img.shields.io/codecov/c/github/UseMuffin/Trash/master.svg?style=flat-square)](https://codecov.io/github/UseMuffin/Trash)
 [![Total Downloads](https://img.shields.io/packagist/dt/muffin/trash.svg?style=flat-square)](https://packagist.org/packages/muffin/trash)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
@@ -63,11 +63,11 @@ $this->addBehavior('Muffin/Trash.Trash', [
 ```
 
 ### Cascading deletion
-If you'd like to have related records marked as trashed when deleting a parent item, you can just attach the behavior 
-to the related table classes, and set the `'dependent' => true, 'cascadeCallbacks' => true` options in the table 
+If you'd like to have related records marked as trashed when deleting a parent item, you can just attach the behavior
+to the related table classes, and set the `'dependent' => true, 'cascadeCallbacks' => true` options in the table
 relationships.
 
-This works on relationships where the item being deleted in the owning side of the relationship. Which means that the 
+This works on relationships where the item being deleted in the owning side of the relationship. Which means that the
 related table should contain the foreign key.
 
 ### Custom Finders
