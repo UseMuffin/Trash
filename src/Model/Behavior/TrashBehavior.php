@@ -49,18 +49,10 @@ class TrashBehavior extends Behavior
      */
     public function __construct(Table $table, array $config = [])
     {
-        $columns = $table->schema()->columns();
-        foreach (['deleted', 'trashed'] as $name) {
-            if (in_array($name, $columns, true)) {
-                $this->_defaultConfig['field'] = $name;
-                break;
-            }
-        }
+        $configuredField = Configure::read('Muffin/Trash.field');
 
-        if (empty($this->_defaultConfig['field']) &&
-            $field = Configure::read('Muffin/Trash.field')
-        ) {
-            $this->_defaultConfig['field'] = $field;
+        if (!$this->_defaultConfig['field'] && $configuredField) {
+            $this->_defaultConfig['field'] = $configuredField;
         }
 
         parent::__construct($table, $config);
@@ -306,7 +298,17 @@ class TrashBehavior extends Behavior
     {
         $field = $this->config('field');
 
-        if ($aliased) {
+        if(empty($field)) {
+            $columns = $this->_table->schema()->columns();
+            foreach (['deleted', 'trashed'] as $name) {
+                if (in_array($name, $columns, true)) {
+                    $field = $name;
+                    break;
+                }
+            }
+        }
+
+        if ($aliased && $field) {
             return $this->_table->aliasField($field);
         }
 
