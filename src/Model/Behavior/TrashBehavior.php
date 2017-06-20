@@ -69,7 +69,7 @@ class TrashBehavior extends Behavior
     {
         $configuredField = Configure::read('Muffin/Trash.field');
 
-        if (!$this->config('field') && $configuredField) {
+        if (empty($config['field']) && !$this->config('field') && $configuredField) {
             $this->config('field', $configuredField);
         }
     }
