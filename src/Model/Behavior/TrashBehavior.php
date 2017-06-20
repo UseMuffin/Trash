@@ -49,24 +49,28 @@ class TrashBehavior extends Behavior
      */
     public function __construct(Table $table, array $config = [])
     {
-        $columns = $table->schema()->columns();
-        foreach (['deleted', 'trashed'] as $name) {
-            if (in_array($name, $columns, true)) {
-                $this->_defaultConfig['field'] = $name;
-                break;
-            }
-        }
-
-        if (empty($this->_defaultConfig['field']) &&
-            $field = Configure::read('Muffin/Trash.field')
-        ) {
-            $this->_defaultConfig['field'] = $field;
-        }
-
         parent::__construct($table, $config);
 
         if (!empty($config['events'])) {
             $this->config('events', $config['events'], false);
+        }
+    }
+
+    /**
+     * Constructor hook method.
+     *
+     * Initialize function does necessary bootrapping needed for this
+     * behavior to function properly
+     *
+     * @param array $config The configuration settings provided to this behavior.
+     * @return void
+     */
+    public function initialize(array $config)
+    {
+        $configuredField = Configure::read('Muffin/Trash.field');
+
+        if (empty($config['field']) && !$this->config('field') && $configuredField) {
+            $this->config('field', $configuredField);
         }
     }
 
@@ -304,13 +308,25 @@ class TrashBehavior extends Behavior
      */
     public function getTrashField($aliased = true)
     {
-        $field = $this->config('field');
-
-        if ($aliased) {
-            return $this->_table->aliasField($field);
+        if (!$this->config('field')) {
+            $columns = $this->_table->schema()->columns();
+            foreach (['deleted', 'trashed'] as $name) {
+                if (in_array($name, $columns, true)) {
+                    $this->config('field', $name);
+                    break;
+                }
+            }
         }
 
-        return $field;
+        if (!$this->config('field')) {
+            throw new RuntimeException('field that stores date entity is trashed not specified');
+        }
+
+        if ($aliased) {
+            return $this->_table->aliasField($this->config('field'));
+        }
+
+        return $this->config('field');
     }
 
     /**

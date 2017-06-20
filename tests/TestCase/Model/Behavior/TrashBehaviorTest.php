@@ -1,6 +1,7 @@
 <?php
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
+use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -359,6 +360,48 @@ class TrashBehaviorTest extends TestCase
         $trash = new TrashBehavior($this->Users, $config);
 
         $this->assertEquals($implementedEvents, $trash->implementedEvents());
+    }
+
+    /**
+     * Test that getTrashField() returns `null` when field is not specified
+     * and defaults not found in schema
+     *
+     * @expectedException RuntimeException
+     * @return void
+     */
+    public function testGetTrashFieldReturnsNullFailsWhenFieldNotSpecifiedOrIntrospectionFails()
+    {
+        $trash = new TrashBehavior($this->Users);
+        $trash->getTrashField();
+    }
+
+    /**
+     * Test that getTrashField() uses configured value
+     *
+     * @return void
+     */
+    public function testGetTrashFieldUsesConfiguredValue()
+    {
+        $trash = new TrashBehavior($this->Users, ['field' => 'deleted']);
+        $this->assertEquals('Users.deleted', $trash->getTrashField());
+
+        Configure::write('Muffin/Trash.field', 'trashed');
+        $trash = new TrashBehavior($this->Users);
+        $this->assertEquals('Users.trashed', $trash->getTrashField());
+    }
+
+    /**
+     * Test that getTrashField() defaults to deleted or trashed
+     * when found in schema and not specified
+     *
+     * @return void
+     */
+    public function testGetTrashFieldDefaultsToDeletedOrTrashedWhenFoundInSchema()
+    {
+        $this->assertEquals(
+            'Articles.trashed',
+            $this->Articles->behaviors()->get('Trash')->getTrashField()
+        );
     }
 
     /**
