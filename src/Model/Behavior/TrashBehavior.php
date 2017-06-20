@@ -308,27 +308,25 @@ class TrashBehavior extends Behavior
      */
     public function getTrashField($aliased = true)
     {
-        $field = $this->config('field');
-
-        if(empty($field)) {
+        if(!$this->config('field')) {
             $columns = $this->_table->schema()->columns();
             foreach (['deleted', 'trashed'] as $name) {
                 if (in_array($name, $columns, true)) {
-                    $field = $name;
+                    $this->config('field', $name);
                     break;
                 }
             }
         }
 
-        if(empty($field)) {
+        if(!$this->config('field')) {
             throw new RuntimeException('field that stores date entity is trashed not specified');
         }
 
         if ($aliased) {
-            return $this->_table->aliasField($field);
+            return $this->_table->aliasField($this->config('field'));
         }
 
-        return $field;
+        return $this->config('field');
     }
 
     /**
