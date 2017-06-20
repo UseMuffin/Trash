@@ -1,9 +1,9 @@
 <?php
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
+use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
-use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
 
@@ -399,7 +399,7 @@ class TrashBehaviorTest extends TestCase
     public function testGetTrashFieldDefaultsToDeletedOrTrashedWhenFoundInSchema()
     {
         $this->assertEquals(
-            'Articles.trashed', 
+            'Articles.trashed',
             $this->Articles->behaviors()->get('Trash')->getTrashField()
         );
     }
