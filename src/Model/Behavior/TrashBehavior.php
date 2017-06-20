@@ -40,31 +40,13 @@ class TrashBehavior extends Behavior
     ];
 
     /**
-     * Constructor
+     * Initialize the behavior.
      *
-     * Merges config with the default and store in the config property
-     *
-     * @param \Cake\ORM\Table $table The table this behavior is attached to.
      * @param array $config The config for this behavior.
+     * @return void
      */
-    public function __construct(Table $table, array $config = [])
+    public function initialize(array $config)
     {
-        $columns = $table->schema()->columns();
-        foreach (['deleted', 'trashed'] as $name) {
-            if (in_array($name, $columns, true)) {
-                $this->_defaultConfig['field'] = $name;
-                break;
-            }
-        }
-
-        if (empty($this->_defaultConfig['field']) &&
-            $field = Configure::read('Muffin/Trash.field')
-        ) {
-            $this->_defaultConfig['field'] = $field;
-        }
-
-        parent::__construct($table, $config);
-
         if (!empty($config['events'])) {
             $this->config('events', $config['events'], false);
         }
@@ -305,6 +287,26 @@ class TrashBehavior extends Behavior
     public function getTrashField($aliased = true)
     {
         $field = $this->config('field');
+
+        if (empty($field)) {
+            $columns = $this->_table->schema()->columns();
+            foreach (['deleted', 'trashed'] as $name) {
+                if (in_array($name, $columns, true)) {
+                    $field = $name;
+                    break;
+                }
+            }
+
+            if (empty($field)) {
+                $field = Configure::read('Muffin/Trash.field');
+            }
+
+            if (empty($field)) {
+                throw new RuntimeException('TrashBehavior: "field" config needs to be provided.');
+            }
+
+            $this->config('field', $field);
+        }
 
         if ($aliased) {
             return $this->_table->aliasField($field);

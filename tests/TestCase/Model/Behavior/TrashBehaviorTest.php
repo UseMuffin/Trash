@@ -1,6 +1,7 @@
 <?php
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
+use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -344,6 +345,48 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertEmpty($article->comments[0]->trashed);
         $this->assertNotInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+    }
+
+    /**
+     * Test that getTrashField() throws exception if "field" is not specified
+     * and cannot be introspected.
+     *
+     * @expectedException RuntimeException
+     * @return void
+     */
+    public function testGetTrashFieldException()
+    {
+        $trash = new TrashBehavior($this->Users);
+        $trash->getTrashField();
+    }
+
+    /**
+     * Test that getTrashField() uses configured value
+     *
+     * @return void
+     */
+    public function testGetTrashFieldUsesConfiguredValue()
+    {
+        $trash = new TrashBehavior($this->Users, ['field' => 'deleted']);
+        $this->assertEquals('Users.deleted', $trash->getTrashField());
+
+        Configure::write('Muffin/Trash.field', 'trashed');
+        $trash = new TrashBehavior($this->Users);
+        $this->assertEquals('Users.trashed', $trash->getTrashField());
+    }
+
+    /**
+     * Test that getTrashField() defaults to deleted or trashed
+     * when found in schema and not specified
+     *
+     * @return void
+     */
+    public function testGetTrashFieldSchemaIntrospection()
+    {
+        $this->assertEquals(
+            'Articles.trashed',
+            $this->Articles->behaviors()->get('Trash')->getTrashField()
+        );
     }
 
     /**
