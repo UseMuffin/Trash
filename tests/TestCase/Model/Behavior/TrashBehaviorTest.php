@@ -294,9 +294,9 @@ class TrashBehaviorTest extends TestCase
 
         $article = $this->Articles->find('withTrashed')
             ->where(['Articles.id' => 1])
-            ->contain(['Comments' => function($q) {
-                return $q->find('withTrashed');
-            }])
+            ->contain(['Comments' => [
+                'finder' => 'withTrashed'
+            ]])
             ->first();
 
         $this->assertNotEmpty($article->trashed);
@@ -322,9 +322,9 @@ class TrashBehaviorTest extends TestCase
 
         $article = $this->Articles->find('withTrashed')
             ->where(['Articles.id' => 1])
-            ->contain(['Comments' => function($q) {
-                return $q->find('withTrashed');
-            }])
+            ->contain(['Comments' => [
+                'finder' => 'withTrashed'
+            ]])
             ->first();
 
         $this->assertNotEmpty($article->trashed);
