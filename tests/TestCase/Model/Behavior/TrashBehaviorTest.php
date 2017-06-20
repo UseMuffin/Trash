@@ -366,13 +366,13 @@ class TrashBehaviorTest extends TestCase
      * Test that getTrashField() returns `null` when field is not specified
      * and defaults not found in schema
      *
+     * @expectedException RuntimeException
      * @return void
      */
-    public function testGetTrashFieldReturnsNullWhenFieldNotSpecifiedOrDefaultsNotFoundInSchema()
+    public function testGetTrashFieldReturnsNullFailsWhenFieldNotSpecifiedOrIntrospectionFails()
     {
         $trash = new TrashBehavior($this->Users);
-
-        $this->assertEquals(null, $trash->getTrashField());
+        $trash->getTrashField();
     }
 
     /**

@@ -308,7 +308,11 @@ class TrashBehavior extends Behavior
             }
         }
 
-        if ($aliased && $field) {
+        if(empty($field)) {
+            throw new RuntimeException('field that stores date entity is trashed not specified');
+        }
+
+        if ($aliased) {
             return $this->_table->aliasField($field);
         }
 
