@@ -49,16 +49,28 @@ class TrashBehavior extends Behavior
      */
     public function __construct(Table $table, array $config = [])
     {
-        $configuredField = Configure::read('Muffin/Trash.field');
-
-        if (!$this->_defaultConfig['field'] && $configuredField) {
-            $this->_defaultConfig['field'] = $configuredField;
-        }
-
         parent::__construct($table, $config);
 
         if (!empty($config['events'])) {
             $this->config('events', $config['events'], false);
+        }
+    }
+
+    /**
+     * Constructor hook method.
+     *
+     * Initialize function does necessary bootrapping needed for this
+     * behavior to function properly
+     *
+     * @param array $config The configuration settings provided to this behavior.
+     * @return void
+     */
+    public function initialize(array $config)
+    {
+        $configuredField = Configure::read('Muffin/Trash.field');
+
+        if (!$this->config('field') && $configuredField) {
+            $this->config('field', $configuredField);
         }
     }
 
