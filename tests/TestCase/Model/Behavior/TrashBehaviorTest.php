@@ -2,6 +2,7 @@
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
 use Cake\Core\Configure;
+use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -60,7 +61,8 @@ class TrashBehaviorTest extends TestCase
         $this->Articles->addBehavior('Muffin/Trash.Trash');
         $this->Articles->hasMany('Comments', [
             'className' => 'Muffin/Trash.Comments',
-            'foreignKey' => 'article_id'
+            'foreignKey' => 'article_id',
+            'sort' => ['Comments.id' => 'ASC'],
         ]);
         $this->Articles->belongsToMany('Users', [
             'className' => 'Muffin/Trash.Users',
@@ -345,6 +347,44 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertEmpty($article->comments[0]->trashed);
         $this->assertNotInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+    }
+
+    /**
+     * Ensure that removing dependent records via the replace save strategy will trash those records
+     *
+     * @return void
+     */
+    public function testTrashDependentViaReplaceSaveStrategy()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+        $association->saveStrategy(HasMany::SAVE_REPLACE);
+
+        $article = $this->Articles->get(1, [
+            'contain' => ['Comments']
+        ]);
+
+        $this->assertEquals(1, $article->comments[0]->id);
+        $this->assertEmpty($article->comments[0]->trashed);
+
+        $article->set('comments', []);
+        $article->dirty('comments', true);
+
+        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $this->Articles->save($article));
+
+        $article = $this->Articles
+            ->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->contain(['Comments' => [
+                'finder' => 'withTrashed'
+            ]])
+            ->first();
+
+        $this->assertNotEmpty($article->comments);
+        $this->assertEquals(1, $article->comments[0]->id);
+        $this->assertNotEmpty($article->comments[0]->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
     }
 
     /**
