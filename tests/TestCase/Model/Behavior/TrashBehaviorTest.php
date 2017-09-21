@@ -61,7 +61,8 @@ class TrashBehaviorTest extends TestCase
         $this->Articles->addBehavior('Muffin/Trash.Trash');
         $this->Articles->hasMany('Comments', [
             'className' => 'Muffin/Trash.Comments',
-            'foreignKey' => 'article_id'
+            'foreignKey' => 'article_id',
+            'sort' => ['Comments.id' => 'ASC'],
         ]);
         $this->Articles->belongsToMany('Users', [
             'className' => 'Muffin/Trash.Users',
