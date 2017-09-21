@@ -2,7 +2,6 @@
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
 use Cake\Core\Configure;
-use Cake\Datasource\EntityInterface;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -371,7 +370,7 @@ class TrashBehaviorTest extends TestCase
         $article->set('comments', []);
         $article->dirty('comments', true);
 
-        $this->assertInstanceOf(EntityInterface::class, $this->Articles->save($article));
+        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $this->Articles->save($article));
 
         $article = $this->Articles
             ->find('withTrashed')
