@@ -2,6 +2,8 @@
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\Event;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -112,6 +114,58 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
+    }
+
+    /**
+     * Tests that the options passed to the `delete()` method are being passed on into
+     * the cascading delete process.
+     *
+     * @return void
+     */
+    public function testDeleteOptionsArePassedToCascadingDeletes()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $hasDeleteOptionsBefore = false;
+        $hasDeleteOptionsAfter = false;
+        $this->Comments->eventManager()->on(
+            'Model.beforeDelete',
+            ['priority' => 1],
+            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$hasDeleteOptionsBefore) {
+                if (isset($options['deleteOptions'])) {
+                    $hasDeleteOptionsBefore = true;
+                }
+            }
+        );
+        $this->Comments->eventManager()->on(
+            'Model.afterDelete',
+            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$hasDeleteOptionsAfter) {
+                if (isset($options['deleteOptions'])) {
+                    $hasDeleteOptionsAfter = true;
+                }
+            }
+        );
+
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->delete($article, [
+            'deleteOptions' => true
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertTrue($hasDeleteOptionsBefore);
+        $this->assertTrue($hasDeleteOptionsAfter);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Passed variable is not an array or object
+     */
+    public function testTrashInvalidOptionsType()
+    {
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->trash($article, 'invalid');
     }
 
     /**
