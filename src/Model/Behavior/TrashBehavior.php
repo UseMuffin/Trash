@@ -122,14 +122,8 @@ class TrashBehavior extends Behavior
      * @throws \InvalidArgumentException In case the options argument is of an invalid type.
      * @throws \RuntimeException if no primary key is set on entity.
      */
-    public function trash(EntityInterface $entity)
+    public function trash(EntityInterface $entity, $options = [])
     {
-        $args = func_get_args();
-        if (count($args) > 1) {
-            $options = $args[1];
-        } else {
-            $options = [];
-        }
         $options = new ArrayObject($options);
 
         $primaryKey = (array)$this->_table->primaryKey();
