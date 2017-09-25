@@ -99,7 +99,7 @@ class TrashBehavior extends Behavior
      */
     public function beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)
     {
-        if (!$this->trash($entity, $options)) {
+        if (!$this->trash($entity, $options->getArrayCopy())) {
             throw new RuntimeException();
         }
 
@@ -117,15 +117,12 @@ class TrashBehavior extends Behavior
      * Trash given entity.
      *
      * @param \Cake\Datasource\EntityInterface $entity EntityInterface.
-     * @param array|\ArrayAccess $options Delete/Trash operation options.
+     * @param array $options Delete/Trash operation options.
      * @return bool
-     * @throws \InvalidArgumentException In case the options argument is of an invalid type.
      * @throws \RuntimeException if no primary key is set on entity.
      */
-    public function trash(EntityInterface $entity, $options = [])
+    public function trash(EntityInterface $entity, array $options = [])
     {
-        $options = new ArrayObject($options);
-
         $primaryKey = (array)$this->_table->primaryKey();
 
         if (!$entity->has($primaryKey)) {
@@ -134,7 +131,7 @@ class TrashBehavior extends Behavior
 
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
-                $association->cascadeDelete($entity, ['_primary' => false] + $options->getArrayCopy());
+                $association->cascadeDelete($entity, ['_primary' => false] + $options);
             }
         }
 

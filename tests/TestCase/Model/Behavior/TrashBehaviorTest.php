@@ -159,16 +159,6 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Passed variable is not an array or object
-     */
-    public function testTrashInvalidOptionsType()
-    {
-        $article = $this->Articles->get(1);
-        $result = $this->Articles->trash($article, 'invalid');
-    }
-
-    /**
      * Test trash function with composite primary keys
      *
      * @return void
