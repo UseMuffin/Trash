@@ -30,6 +30,7 @@ class CommentsFixture extends TestFixture
     public $records = [
         ['user_id' => 1, 'article_id' => 1, 'body' => 'Dummy text'],
         ['user_id' => 1, 'article_id' => 1, 'body' => 'Some other dummy text'],
+        ['user_id' => 1, 'article_id' => 2, 'body' => 'Even more dummy text'],
     ];
 
     public function init()

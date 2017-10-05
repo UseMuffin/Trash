@@ -12,6 +12,7 @@ use Muffin\Trash\Model\Behavior\TrashBehavior;
 
 /**
  * @property \Cake\ORM\Table Users
+ * @property \Cake\ORM\Table CompositeArticlesUsers
  * @property \Cake\ORM\Table Comments
  * @property \Cake\ORM\Table Articles
  * @property \Muffin\Trash\Model\Behavior\TrashBehavior Behavior
@@ -48,6 +49,9 @@ class TrashBehaviorTest extends TestCase
             'targetForeignKey' => 'article_id',
         ]);
 
+        $this->CompositeArticlesUsers = TableRegistry::get('Muffin/Trash.CompositeArticlesUsers', ['table' => 'trash_composite_articles_users']);
+        $this->CompositeArticlesUsers->addBehavior('Muffin/Trash.Trash');
+
         $this->Comments = TableRegistry::get('Muffin/Trash.Comments', ['table' => 'trash_comments']);
         $this->Comments->belongsTo('Articles', [
             'className' => 'Muffin/Trash.Articles',
@@ -72,11 +76,12 @@ class TrashBehaviorTest extends TestCase
             'foreignKey' => 'article_id',
             'targetForeignKey' => 'user_id',
         ]);
+        $this->Articles->hasMany('CompositeArticlesUsers', [
+            'className' => 'Muffin/Trash.CompositeArticlesUsers',
+            'foreignKey' => 'article_id',
+        ]);
 
         $this->Behavior = $this->Articles->behaviors()->Trash;
-
-        $this->CompositeArticlesUsers = TableRegistry::get('Muffin/Trash.CompositeArticlesUsers', ['table' => 'trash_composite_articles_users']);
-        $this->CompositeArticlesUsers->addBehavior('Muffin/Trash.Trash');
     }
 
     /**
@@ -353,24 +358,41 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
-     * Ensure that when trashing it will cascade into related dependent records
+     * Tests that cascading restore with an entity specified will restore that entity record,
+     * and the dependent records.
      *
      * @return void
      */
-    public function testCascadingUntrash()
+    public function testCascadingUntrashEntity()
     {
         $association = $this->Articles->association('Comments');
         $association->dependent(true);
         $association->cascadeCallbacks(true);
 
-        $article = $this->Articles->get(1);
-        $this->Articles->trash($article);
+        $association = $this->Articles->association('CompositeArticlesUsers');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
 
-        $article = $this->Articles->find('withTrashed')
+        $this->Articles->Comments->target()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->Comments->target()->find()->count());
+
+        $this->Articles->CompositeArticlesUsers->target()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->target()->find()->count());
+
+        $this->Articles->trashAll([]);
+        $this->assertEquals(0, $this->Articles->find()->count());
+
+        $article = $this->Articles
+            ->find('withTrashed')
             ->where(['Articles.id' => 1])
-            ->contain(['Comments' => [
-                'finder' => 'withTrashed'
-            ]])
+            ->contain([
+                'Comments' => [
+                    'finder' => 'withTrashed'
+                ],
+                'CompositeArticlesUsers' => [
+                    'finder' => 'withTrashed'
+                ],
+            ])
             ->first();
 
         $this->assertNotEmpty($article->trashed);
@@ -379,18 +401,131 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->comments[0]->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
 
-        $this->Articles->cascadingRestoreTrash($article);
+        $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->composite_articles_users[0]->trashed);
 
-        $article = $this->Articles->find()
+        $unrelatedComment = $this->Articles->Comments->target()->findById(3)->find('withTrashed')->first();
+        $this->assertNotEquals($article->id, $unrelatedComment->article_id);
+        $this->assertNotEmpty($unrelatedComment->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedComment->trashed);
+
+        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->target()->findByArticleId(3)->find('withTrashed')->first();
+        $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
+        $this->assertNotEmpty($unrelatedArticleUser->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedArticleUser->trashed);
+
+        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $this->Articles->cascadingRestoreTrash($article));
+
+        $article = $this->Articles
+            ->find()
             ->where(['Articles.id' => 1])
-            ->contain(['Comments'])
+            ->contain(['Comments', 'CompositeArticlesUsers'])
             ->first();
 
         $this->assertEmpty($article->trashed);
-        $this->assertNotInstanceOf('Cake\I18n\Time', $article->trashed);
-
         $this->assertEmpty($article->comments[0]->trashed);
-        $this->assertNotInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+        $this->assertEmpty($article->composite_articles_users[0]->trashed);
+
+        $unrelatedComment = $this->Articles->Comments->target()->findById(3)->find('withTrashed')->first();
+        $this->assertNotEquals($article->id, $unrelatedComment->article_id);
+        $this->assertNotEmpty($unrelatedComment->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedComment->trashed);
+
+        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->target()->findByArticleId(3)->find('withTrashed')->first();
+        $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
+        $this->assertNotEmpty($unrelatedArticleUser->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedArticleUser->trashed);
+    }
+
+    /**
+     * Tests that cascading restore without specifying an entity will restore all records.
+     *
+     * @return void
+     */
+    public function testCascadingUntrashAll()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $association = $this->Articles->association('CompositeArticlesUsers');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $this->Articles->Comments->target()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->Comments->target()->find()->count());
+
+        $this->Articles->CompositeArticlesUsers->target()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->target()->find()->count());
+
+        $this->Articles->trashAll([]);
+        $this->assertEquals(0, $this->Articles->find()->count());
+
+        $article = $this->Articles
+            ->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->contain([
+                'Comments' => [
+                    'finder' => 'withTrashed'
+                ],
+                'CompositeArticlesUsers' => [
+                    'finder' => 'withTrashed'
+                ],
+            ])
+            ->first();
+
+        $this->assertNotEmpty($article->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->trashed);
+
+        $this->assertNotEmpty($article->comments[0]->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+
+        $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf('Cake\I18n\Time', $article->composite_articles_users[0]->trashed);
+
+        $this->assertEquals(8, $this->Articles->cascadingRestoreTrash());
+
+        $article = $this->Articles
+            ->find()
+            ->where(['Articles.id' => 1])
+            ->contain(['Comments', 'CompositeArticlesUsers'])
+            ->first();
+
+        $this->assertEmpty($article->trashed);
+        $this->assertEmpty($article->comments[0]->trashed);
+        $this->assertEmpty($article->composite_articles_users[0]->trashed);
+
+        $this->assertEquals(3, $this->Articles->Comments->target()->find()->count());
+        $this->assertEquals(2, $this->Articles->CompositeArticlesUsers->target()->find()->count());
+        $this->assertEquals(3, $this->Articles->find()->count());
+    }
+
+    /**
+     * Tests that cascading restore returns the expected value on failure.
+     *
+     * @return void
+     */
+    public function testCascadingUntrashFailure()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+        $association->eventManager()->on('Model.beforeSave', function () {
+            return false;
+        });
+
+        $association->target()->trashAll([]);
+        $this->assertEquals(0, $association->target()->find()->count());
+
+        $this->Articles->trashAll([]);
+        $this->assertEquals(0, $this->Articles->find()->count());
+
+        $article = $this->Articles
+            ->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->first();
+
+        $this->assertFalse($this->Articles->cascadingRestoreTrash($article));
     }
 
     /**

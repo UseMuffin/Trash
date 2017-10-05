@@ -258,7 +258,19 @@ class TrashBehavior extends Behavior
 
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
-                return $association->target()->cascadingRestoreTrash();
+                if ($entity === null) {
+                    $result += $association->target()->cascadingRestoreTrash();
+                } else {
+                    $foreignKey = (array)$association->foreignKey();
+                    $bindingKey = (array)$association->bindingKey();
+                    $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
+
+                    foreach ($association->find('withTrashed')->where($conditions) as $related) {
+                        if (!$association->target()->cascadingRestoreTrash($related)) {
+                            $result = false;
+                        }
+                    }
+                }
             }
         }
 
