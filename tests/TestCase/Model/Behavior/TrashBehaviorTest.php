@@ -164,6 +164,58 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Tests that the options passed to the `delete()` method are being passed on into
+     * the saving process.
+     *
+     * @return void
+     */
+    public function testDeleteOptionsArePassedToSave()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $mainHasDeleteOptions = false;
+        $dependentHasDeleteOptions = false;
+        $dependentIsNotPrimary = false;
+        $this->Articles->eventManager()->on(
+            'Model.beforeSave',
+            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$mainHasDeleteOptions) {
+                if (isset($options['deleteOptions'])) {
+                    $mainHasDeleteOptions = true;
+                }
+            }
+        );
+        $this->Comments->eventManager()->on(
+            'Model.beforeSave',
+            function (
+                Event $event,
+                EntityInterface $entity,
+                \ArrayObject $options
+            ) use (
+                &$dependentHasDeleteOptions,
+                &$dependentIsNotPrimary
+            ) {
+                if (isset($options['deleteOptions'])) {
+                    $dependentHasDeleteOptions = true;
+                }
+
+                $dependentIsNotPrimary = $options['_primary'] === false;
+            }
+        );
+
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->delete($article, [
+            'deleteOptions' => true
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertTrue($mainHasDeleteOptions);
+        $this->assertTrue($dependentHasDeleteOptions);
+        $this->assertTrue($dependentIsNotPrimary);
+    }
+
+    /**
      * Test trash function with composite primary keys
      *
      * @return void
@@ -355,6 +407,62 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertNotEmpty($article->comments[0]->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+    }
+
+    public function testCascadingUntrashOptionsArePassedToSave()
+    {
+        $association = $this->Articles->association('Comments');
+        $association->dependent(true);
+        $association->cascadeCallbacks(true);
+
+        $this->Articles->Comments->target()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->Comments->target()->find()->count());
+
+        $this->Articles->trashAll([]);
+        $this->assertEquals(0, $this->Articles->find()->count());
+
+        $article = $this->Articles
+            ->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->first();
+
+        $mainHasRestoreOptions = false;
+        $dependentHasRestoreOptions = false;
+        $dependentIsNotPrimary = false;
+        $this->Articles->eventManager()->on(
+            'Model.beforeSave',
+            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$mainHasRestoreOptions) {
+                if (isset($options['restoreOptions'])) {
+                    $mainHasRestoreOptions = true;
+                }
+            }
+        );
+        $this->Comments->eventManager()->on(
+            'Model.beforeSave',
+            function (
+                Event $event,
+                EntityInterface $entity,
+                \ArrayObject $options
+            ) use (
+                &$dependentHasRestoreOptions,
+                &$dependentIsNotPrimary
+            ) {
+                if (isset($options['restoreOptions'])) {
+                    $dependentHasRestoreOptions = true;
+                }
+
+                $dependentIsNotPrimary = $options['_primary'] === false;
+            }
+        );
+
+        $result = $this->Articles->cascadingRestoreTrash($article, [
+            'restoreOptions' => true
+        ]);
+
+        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $result);
+        $this->assertTrue($mainHasRestoreOptions);
+        $this->assertTrue($dependentHasRestoreOptions);
+        $this->assertTrue($dependentIsNotPrimary);
     }
 
     /**

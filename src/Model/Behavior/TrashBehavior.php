@@ -117,7 +117,7 @@ class TrashBehavior extends Behavior
      * Trash given entity.
      *
      * @param \Cake\Datasource\EntityInterface $entity EntityInterface.
-     * @param array $options Delete/Trash operation options.
+     * @param array $options Trash operation options.
      * @return bool
      * @throws \RuntimeException if no primary key is set on entity.
      */
@@ -138,7 +138,7 @@ class TrashBehavior extends Behavior
         $data = [$this->getTrashField(false) => new Time()];
         $entity->set($data, ['guard' => false]);
 
-        if ($this->_table->save($entity)) {
+        if ($this->_table->save($entity, $options)) {
             return true;
         }
 
@@ -228,9 +228,10 @@ class TrashBehavior extends Behavior
      * Restores all (or given) trashed row(s).
      *
      * @param \Cake\Datasource\EntityInterface|null $entity to restore.
+     * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return bool|\Cake\Datasource\EntityInterface|int|mixed
      */
-    public function restoreTrash(EntityInterface $entity = null)
+    public function restoreTrash(EntityInterface $entity = null, array $options = [])
     {
         $data = [$this->getTrashField(false) => null];
 
@@ -240,7 +241,7 @@ class TrashBehavior extends Behavior
             }
             $entity->set($data, ['guard' => false]);
 
-            return $this->_table->save($entity);
+            return $this->_table->save($entity, $options);
         }
 
         return $this->_table->updateAll($data, $this->_getUnaryExpression());
@@ -250,23 +251,24 @@ class TrashBehavior extends Behavior
      * Restore an item from trashed status and all its related data
      *
      * @param \Cake\Datasource\EntityInterface $entity Entity instance
+     * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return bool|\Cake\Datasource\EntityInterface|int
      */
-    public function cascadingRestoreTrash(EntityInterface $entity = null)
+    public function cascadingRestoreTrash(EntityInterface $entity = null, array $options = [])
     {
-        $result = $this->restoreTrash($entity);
+        $result = $this->restoreTrash($entity, $options);
 
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
-                    $result += $association->target()->cascadingRestoreTrash();
+                    $result += $association->target()->cascadingRestoreTrash(null, $options);
                 } else {
                     $foreignKey = (array)$association->foreignKey();
                     $bindingKey = (array)$association->bindingKey();
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
 
                     foreach ($association->find('withTrashed')->where($conditions) as $related) {
-                        if (!$association->target()->cascadingRestoreTrash($related)) {
+                        if (!$association->target()->cascadingRestoreTrash($related, ['_primary' => false] + $options)) {
                             $result = false;
                         }
                     }
