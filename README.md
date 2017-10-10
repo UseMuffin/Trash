@@ -79,8 +79,11 @@ as part of certain calls.
 ### Extras
 
 - **emptyTrash()** - permanently deletes all trashed records.
-- **restoreTrash($entity = null)** - restores one (or all) trashed records.
-- **trash($entity)** - like `delete()` but for a soft-delete (handy when `Model.beforeDelete` is disabled by default).
+- **restoreTrash($entity = null, array $options = [])** - restores one (or all) trashed records.
+- **cascadingRestoreTrash($entity = null, array $options = [])** - restores one (or all) trashed records including
+those of dependent associations.
+- **trash($entity, array $options = [])** - like `delete()` but for a soft-delete (handy when `Model.beforeDelete` is
+disabled by default).
 - **trashAll(array $conditions)** - like `deleteAll()` but for soft-deletes.
 
 ## Patches & Features
