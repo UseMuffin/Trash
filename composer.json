@@ -36,6 +36,7 @@
     "require-dev": {
         "cakephp/chronos": "^1.1",
         "cakephp/cakephp": "^3.5",
+        "cakephp/debug_kit": "~3.0",
         "phpunit/phpunit": "^5.7.14|^6.0"
     },
     "autoload": {
