@@ -27,8 +27,8 @@ class TrashPanel extends DebugPanel
     {
         $this->_data = ['trashed' => []];
 
-        if (Configure::read('TrashedPanel.tables')) {
-            $this->_tables = Configure::read('TrashedPanel.tables');
+        if (Configure::read('TrashPanel.tables')) {
+            $this->_tables = Configure::read('TrashPanel.tables');
         }
 
         foreach($this->_tables as $table) {
@@ -42,7 +42,7 @@ class TrashPanel extends DebugPanel
      * @param string $table The table name - must have a class in App\Model\Table
      * @return integer number of records trashed
      */
-    protected function _countTrashed($tableName)
+    public function countTrashed($tableName)
     {
         $Table = TableRegistry::get($tableName);
         // Having the TrashBehavior enabled will give us zero results
@@ -81,7 +81,7 @@ class TrashPanel extends DebugPanel
         ];
 
         foreach($this->_tables as $table) {
-            $this->_data['trashed'][$table] = $this->_countTrashed($table);
+            $this->_data['trashed'][$table] = $this->countTrashed($table);
         }
 
         $this->_data['totalTrashed'] = array_sum($this->_data['trashed']);
