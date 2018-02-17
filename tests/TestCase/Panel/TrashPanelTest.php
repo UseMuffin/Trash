@@ -101,6 +101,14 @@ class TrashPanelTest extends TestCase
         ]);
 
         $this->Behavior = $this->Articles->behaviors()->Trash;
+
+        Configure::write('Muffin/Trash.panel', [
+            'tables' => [    
+                $this->Articles,
+                $this->Comments,
+            ],
+        ]);
+        $this->TrashPanel->initialize();
     }
 
     /**
@@ -132,6 +140,21 @@ class TrashPanelTest extends TestCase
         );
     }
 
+    /**
+     * Test the countTrashed method
+     *
+     * @return void
+     */
+    public function testTrashPanelSummary()
+    {
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->delete($article);
+        $summary = '4 trashed';
+        $totalTrashed  = $this->Articles->countTrashed() + $this->Comments->countTrashed();
+        $this->assertEquals(4, $totalTrashed);
+        $this->TrashPanel->shutdown(new Event('Panel.shutdown', []));
+        $this->assertEquals($summary, $this->TrashPanel->summary());
+    }
     /**
      * Test it returns zero when all records are emptied from the trash.
      *

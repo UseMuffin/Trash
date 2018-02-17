@@ -27,12 +27,16 @@ class TrashPanel extends DebugPanel
     public function initialize()
     {
         $this->_data = ['trashed' => []];
-        $enabledTables = Configure::read('Muffin/Trash.panel.tables');
-        if (empty($enabledTables)) {
+        $this->_tables = Configure::read('Muffin/Trash.panel.tables');
+        if (empty($this->_tables)) {
             $this->_tables = [];
         }
         foreach($this->_tables as $table) {
-            $this->_data['trashed'][$table] = 0;
+            if ($table instanceof \Cake\ORM\Table) {
+                $this->_data['trashed'][$table->getTable()] = 0;
+            } else {
+                $this->_data['trashed'][$table] = 0;
+            }
         }
     }
 
@@ -85,9 +89,13 @@ class TrashPanel extends DebugPanel
         ];
 
         foreach($this->_tables as $table) {
-            $this->_data['trashed'][$table] = $this->countTrashed($table);
+            $count = $this->countTrashed($table);
+            if ($table instanceof \Cake\ORM\Table) {
+                $this->_data['trashed'][$table->getTable()] = $count;
+            } else {
+                $this->_data['trashed'][$table] = $count;
+            }
         }
-
         $this->_data['totalTrashed'] = array_sum($this->_data['trashed']);
     }
 }
