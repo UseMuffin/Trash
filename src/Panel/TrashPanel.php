@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use DebugKit\DebugPanel;
+use RuntimeException;
 
 /**
  * TrashPanel
@@ -26,11 +27,10 @@ class TrashPanel extends DebugPanel
     public function initialize()
     {
         $this->_data = ['trashed' => []];
-
-        if (Configure::read('TrashPanel.tables')) {
-            $this->_tables = Configure::read('TrashPanel.tables');
+        $enabledTables = Configure::read('Muffin/Trash.panel.tables');
+        if (empty($enabledTables)) {
+            $this->_tables = [];
         }
-
         foreach($this->_tables as $table) {
             $this->_data['trashed'][$table] = 0;
         }
@@ -42,17 +42,21 @@ class TrashPanel extends DebugPanel
      * @param string $table The table name - must have a class in App\Model\Table
      * @return integer number of records trashed
      */
-    public function countTrashed($tableName)
+    public function countTrashed($tableOrName)
     {
-        $Table = TableRegistry::get($tableName);
-        // Having the TrashBehavior enabled will give us zero results
-        // so we remove it here
-        $Table->removeBehavior('Trash');
-        $count = $Table->find()->where(function($exp, $query) {
-                return $exp->isNotNull('deleted');
-            })
-            ->count($Table->primaryKey());
-        return $count;
+        $Table = $tableOrName;
+        if (is_string($tableOrName)) {
+            $Table = TableRegistry::get($tableOrName);
+        }
+        if (! $tableOrName instanceof \Cake\ORM\Table ) {
+            // TODO: log that w failed to find the table here
+            return -1;
+        }
+        // We need to disable TrashBehavior here enabled will give us zero results
+        if ($Table->behaviors()->has('Muffin/Trash.Trash')) {
+            $Table->behaviors()->unload('Muffin/Trash.Trash');
+        }
+        return $Table->countTrashed();
     }
 
     /**

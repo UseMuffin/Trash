@@ -366,4 +366,14 @@ class TrashBehavior extends Behavior
 
         return false;
     }
+
+    public function countTrashed()
+    {
+        $field = $this->getTrashField();
+        return $this->_table->find()
+            ->where(function($exp, $query) use ($field) {
+                return $exp->isNotNull($field);
+            })
+            ->count($this->_table->primaryKey());
+    }
 }
