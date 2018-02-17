@@ -15,9 +15,9 @@ use DebugKit\DebugPanel;
 class TrashPanel extends DebugPanel
 {
     /**
-     * @property {array} Array containing names of tables to check for trashed records
+     * @property array Array containing names of tables to check for trashed records
      */
-    private $_tables = [];
+    protected $_tables = [];
 
     /**
      * initialize
@@ -39,8 +39,8 @@ class TrashPanel extends DebugPanel
     /**
      * Counts the number of records trashed from a table
      *
-     * @param {string} $table The table name - must have a class in App\Model\Table
-     * @return {integer} number of records trashed
+     * @param string $table The table name - must have a class in App\Model\Table
+     * @return integer number of records trashed
      */
     protected function _countTrashed($tableName)
     {
@@ -58,7 +58,7 @@ class TrashPanel extends DebugPanel
     /**
      * Summary of trashed records
      * 
-     * @return {string} string of how many trashed records there are
+     * @return string string of how many trashed records there are
      */
     public function summary()
     {
@@ -71,7 +71,7 @@ class TrashPanel extends DebugPanel
     /**
      * Shutdown event hook
      *
-     * @param {Cake\Event\Event} $event
+     * @param Cake\Event\Event $event
      */
     public function shutdown(Event $event)
     {
