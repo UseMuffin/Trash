@@ -33,7 +33,7 @@ class TrashPanel extends DebugPanel
         }
         foreach($this->_tables as $table) {
             if ($table instanceof \Cake\ORM\Table) {
-                $this->_data['trashed'][$table->getTable()] = 0;
+                $this->_data['trashed'][$table->table()] = 0;
             } else {
                 $this->_data['trashed'][$table] = 0;
             }
@@ -57,7 +57,7 @@ class TrashPanel extends DebugPanel
             return -1;
         }
         // We need to disable TrashBehavior here enabled will give us zero results
-        if ($Table->behaviors()->has('Muffin/Trash.Trash')) {
+        if ($Table->hasBehavior('Muffin/Trash.Trash')) {
             $Table->behaviors()->unload('Muffin/Trash.Trash');
         }
         return $Table->countTrashed();
@@ -91,7 +91,7 @@ class TrashPanel extends DebugPanel
         foreach($this->_tables as $table) {
             $count = $this->countTrashed($table);
             if ($table instanceof \Cake\ORM\Table) {
-                $this->_data['trashed'][$table->getTable()] = $count;
+                $this->_data['trashed'][$table->table()] = $count;
             } else {
                 $this->_data['trashed'][$table] = $count;
             }
