@@ -369,13 +369,13 @@ class TrashBehavior extends Behavior
 
     /**
      * Counts the number of records that have been `trashed`
-     * 
+     *
      * @return int
      */
     public function countTrashed()
     {
         $field = $this->getTrashField();
-        
+
         return $this->_table->find()
             ->where(
                 function ($exp, $query) use ($field) {

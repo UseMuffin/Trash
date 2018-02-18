@@ -35,7 +35,7 @@ class TrashPanelTest extends TestCase
 
     /**
      * Configuration for the tests.
-     * 
+     *
      * @var array
      */
     public $tableConfig = [

@@ -10,8 +10,8 @@ use RuntimeException;
 /**
  * TrashPanel
  *
- * Lists how many records were `Trashed` from the configured tables  
- * 
+ * Lists how many records were `Trashed` from the configured tables
+ *
  */
 class TrashPanel extends DebugPanel
 {
@@ -45,7 +45,7 @@ class TrashPanel extends DebugPanel
      * Counts the number of records trashed from a table
      *
      * @param string|\Cake\ORM\Table $tableOrName A table object or table name
-     * 
+     *
      * @return int number of records trashed
      */
     public function countTrashed($tableOrName)
@@ -68,7 +68,7 @@ class TrashPanel extends DebugPanel
 
     /**
      * Summary of trashed records
-     * 
+     *
      * @return string string of how many trashed records there are
      */
     public function summary()
@@ -76,6 +76,7 @@ class TrashPanel extends DebugPanel
         if (!isset($this->_data['totalTrashed'])) {
             return 0;
         }
+
         return __("{0} trashed", $this->_data['totalTrashed']);
     }
 
@@ -83,7 +84,7 @@ class TrashPanel extends DebugPanel
      * Shutdown event hook
      *
      * @param Cake\Event\Event $event A panel event
-     * 
+     *
      * @return void
      */
     public function shutdown(Event $event)
