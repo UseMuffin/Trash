@@ -16,13 +16,14 @@ use RuntimeException;
 class TrashPanel extends DebugPanel
 {
     /**
-     * @property array Array containing names of tables to check for trashed records
+     * @var array Array containing names of tables to check for trashed records
      */
     protected $_tables = [];
 
     /**
-     * initialize
+     * Initialize the TrashPanel
      *
+     * @return void
      */
     public function initialize()
     {
@@ -31,7 +32,7 @@ class TrashPanel extends DebugPanel
         if (empty($this->_tables)) {
             $this->_tables = [];
         }
-        foreach($this->_tables as $table) {
+        foreach ($this->_tables as $table) {
             if ($table instanceof \Cake\ORM\Table) {
                 $this->_data['trashed'][$table->table()] = 0;
             } else {
@@ -43,8 +44,9 @@ class TrashPanel extends DebugPanel
     /**
      * Counts the number of records trashed from a table
      *
-     * @param string $table The table name - must have a class in App\Model\Table
-     * @return integer number of records trashed
+     * @param string|\Cake\ORM\Table $tableOrName A table object or table name
+     * 
+     * @return int number of records trashed
      */
     public function countTrashed($tableOrName)
     {
@@ -52,7 +54,7 @@ class TrashPanel extends DebugPanel
         if (is_string($tableOrName)) {
             $Table = TableRegistry::get($tableOrName);
         }
-        if (! $tableOrName instanceof \Cake\ORM\Table ) {
+        if (! $tableOrName instanceof \Cake\ORM\Table) {
             // TODO: log that w failed to find the table here
             return -1;
         }
@@ -60,6 +62,7 @@ class TrashPanel extends DebugPanel
         if ($Table->hasBehavior('Muffin/Trash.Trash')) {
             $Table->behaviors()->unload('Muffin/Trash.Trash');
         }
+
         return $Table->countTrashed();
     }
 
@@ -79,7 +82,9 @@ class TrashPanel extends DebugPanel
     /**
      * Shutdown event hook
      *
-     * @param Cake\Event\Event $event
+     * @param Cake\Event\Event $event A panel event
+     * 
+     * @return void
      */
     public function shutdown(Event $event)
     {
@@ -88,7 +93,7 @@ class TrashPanel extends DebugPanel
             'trashed' => []
         ];
 
-        foreach($this->_tables as $table) {
+        foreach ($this->_tables as $table) {
             $count = $this->countTrashed($table);
             if ($table instanceof \Cake\ORM\Table) {
                 $this->_data['trashed'][$table->table()] = $count;

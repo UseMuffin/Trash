@@ -33,6 +33,11 @@ class TrashPanelTest extends TestCase
         'plugin.Muffin/Trash.composite_articles_users',
     ];
 
+    /**
+     * Configuration for the tests.
+     * 
+     * @var array
+     */
     public $tableConfig = [
         'Muffin/Trash' => [
             'field' => 'trashed',
@@ -103,7 +108,7 @@ class TrashPanelTest extends TestCase
         $this->Behavior = $this->Articles->behaviors()->Trash;
 
         Configure::write('Muffin/Trash.panel', [
-            'tables' => [    
+            'tables' => [
                 $this->Articles,
                 $this->Comments,
             ],
@@ -150,7 +155,7 @@ class TrashPanelTest extends TestCase
         $article = $this->Articles->get(1);
         $result = $this->Articles->delete($article);
         $summary = '4 trashed';
-        $totalTrashed  = $this->Articles->countTrashed() + $this->Comments->countTrashed();
+        $totalTrashed = $this->Articles->countTrashed() + $this->Comments->countTrashed();
         $this->assertEquals(4, $totalTrashed);
         $this->TrashPanel->shutdown(new Event('Panel.shutdown', []));
         $this->assertEquals($summary, $this->TrashPanel->summary());
