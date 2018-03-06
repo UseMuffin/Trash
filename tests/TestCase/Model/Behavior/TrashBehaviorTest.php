@@ -129,13 +129,13 @@ class TrashBehaviorTest extends TestCase
      */
     public function testDeleteOptionsArePassedToCascadingDeletes()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
         $hasDeleteOptionsBefore = false;
         $hasDeleteOptionsAfter = false;
-        $this->Comments->eventManager()->on(
+        $this->Comments->getEventManager()->on(
             'Model.beforeDelete',
             ['priority' => 1],
             function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$hasDeleteOptionsBefore) {
@@ -144,7 +144,7 @@ class TrashBehaviorTest extends TestCase
                 }
             }
         );
-        $this->Comments->eventManager()->on(
+        $this->Comments->getEventManager()->on(
             'Model.afterDelete',
             function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$hasDeleteOptionsAfter) {
                 if (isset($options['deleteOptions'])) {
@@ -171,14 +171,14 @@ class TrashBehaviorTest extends TestCase
      */
     public function testDeleteOptionsArePassedToSave()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
         $mainHasDeleteOptions = false;
         $dependentHasDeleteOptions = false;
         $dependentIsNotPrimary = false;
-        $this->Articles->eventManager()->on(
+        $this->Articles->getEventManager()->on(
             'Model.beforeSave',
             function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$mainHasDeleteOptions) {
                 if (isset($options['deleteOptions'])) {
@@ -186,7 +186,7 @@ class TrashBehaviorTest extends TestCase
                 }
             }
         );
-        $this->Comments->eventManager()->on(
+        $this->Comments->getEventManager()->on(
             'Model.beforeSave',
             function (
                 Event $event,
@@ -251,7 +251,7 @@ class TrashBehaviorTest extends TestCase
     public function testTrashNonAccessibleProperty()
     {
         $article = $this->Articles->get(1);
-        $article->accessible('trashed', false);
+        $article->setAccess('trashed', false);
         $result = $this->Articles->trash($article);
 
         $this->assertTrue($result);
@@ -388,9 +388,9 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingTrash()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
         $article = $this->Articles->get(1);
         $this->Articles->trash($article);
@@ -411,12 +411,12 @@ class TrashBehaviorTest extends TestCase
 
     public function testCascadingUntrashOptionsArePassedToSave()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
-        $this->Articles->Comments->target()->trashAll([]);
-        $this->assertEquals(0, $this->Articles->Comments->target()->find()->count());
+        $this->Articles->Comments->getTarget()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->Comments->getTarget()->find()->count());
 
         $this->Articles->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
@@ -429,7 +429,7 @@ class TrashBehaviorTest extends TestCase
         $mainHasRestoreOptions = false;
         $dependentHasRestoreOptions = false;
         $dependentIsNotPrimary = false;
-        $this->Articles->eventManager()->on(
+        $this->Articles->getEventManager()->on(
             'Model.beforeSave',
             function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$mainHasRestoreOptions) {
                 if (isset($options['restoreOptions'])) {
@@ -437,7 +437,7 @@ class TrashBehaviorTest extends TestCase
                 }
             }
         );
-        $this->Comments->eventManager()->on(
+        $this->Comments->getEventManager()->on(
             'Model.beforeSave',
             function (
                 Event $event,
@@ -473,19 +473,19 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingUntrashEntity()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
-        $association = $this->Articles->association('CompositeArticlesUsers');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('CompositeArticlesUsers');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
-        $this->Articles->Comments->target()->trashAll([]);
-        $this->assertEquals(0, $this->Articles->Comments->target()->find()->count());
+        $this->Articles->Comments->getTarget()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->Comments->getTarget()->find()->count());
 
-        $this->Articles->CompositeArticlesUsers->target()->trashAll([]);
-        $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->target()->find()->count());
+        $this->Articles->CompositeArticlesUsers->getTarget()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->getTarget()->find()->count());
 
         $this->Articles->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
@@ -512,12 +512,12 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $article->composite_articles_users[0]->trashed);
 
-        $unrelatedComment = $this->Articles->Comments->target()->findById(3)->find('withTrashed')->first();
+        $unrelatedComment = $this->Articles->Comments->getTarget()->findById(3)->find('withTrashed')->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $unrelatedComment->trashed);
 
-        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->target()->findByArticleId(3)->find('withTrashed')->first();
+        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()->findByArticleId(3)->find('withTrashed')->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $unrelatedArticleUser->trashed);
@@ -534,12 +534,12 @@ class TrashBehaviorTest extends TestCase
         $this->assertEmpty($article->comments[0]->trashed);
         $this->assertEmpty($article->composite_articles_users[0]->trashed);
 
-        $unrelatedComment = $this->Articles->Comments->target()->findById(3)->find('withTrashed')->first();
+        $unrelatedComment = $this->Articles->Comments->getTarget()->findById(3)->find('withTrashed')->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $unrelatedComment->trashed);
 
-        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->target()->findByArticleId(3)->find('withTrashed')->first();
+        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()->findByArticleId(3)->find('withTrashed')->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
         $this->assertInstanceOf('Cake\I18n\Time', $unrelatedArticleUser->trashed);
@@ -552,19 +552,19 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingUntrashAll()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
-        $association = $this->Articles->association('CompositeArticlesUsers');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
+        $association = $this->Articles->getAssociation('CompositeArticlesUsers');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
 
-        $this->Articles->Comments->target()->trashAll([]);
-        $this->assertEquals(0, $this->Articles->Comments->target()->find()->count());
+        $this->Articles->Comments->getTarget()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->Comments->getTarget()->find()->count());
 
-        $this->Articles->CompositeArticlesUsers->target()->trashAll([]);
-        $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->target()->find()->count());
+        $this->Articles->CompositeArticlesUsers->getTarget()->trashAll([]);
+        $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->getTarget()->find()->count());
 
         $this->Articles->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
@@ -603,8 +603,8 @@ class TrashBehaviorTest extends TestCase
         $this->assertEmpty($article->comments[0]->trashed);
         $this->assertEmpty($article->composite_articles_users[0]->trashed);
 
-        $this->assertEquals(3, $this->Articles->Comments->target()->find()->count());
-        $this->assertEquals(2, $this->Articles->CompositeArticlesUsers->target()->find()->count());
+        $this->assertEquals(3, $this->Articles->Comments->getTarget()->find()->count());
+        $this->assertEquals(2, $this->Articles->CompositeArticlesUsers->getTarget()->find()->count());
         $this->assertEquals(3, $this->Articles->find()->count());
     }
 
@@ -615,15 +615,15 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingUntrashFailure()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
-        $association->eventManager()->on('Model.beforeSave', function () {
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
+        $association->getEventManager()->on('Model.beforeSave', function () {
             return false;
         });
 
-        $association->target()->trashAll([]);
-        $this->assertEquals(0, $association->target()->find()->count());
+        $association->getTarget()->trashAll([]);
+        $this->assertEquals(0, $association->getTarget()->find()->count());
 
         $this->Articles->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
@@ -643,10 +643,10 @@ class TrashBehaviorTest extends TestCase
      */
     public function testTrashDependentViaReplaceSaveStrategy()
     {
-        $association = $this->Articles->association('Comments');
-        $association->dependent(true);
-        $association->cascadeCallbacks(true);
-        $association->saveStrategy(HasMany::SAVE_REPLACE);
+        $association = $this->Articles->getAssociation('Comments');
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
+        $association->setSaveStrategy(HasMany::SAVE_REPLACE);
 
         $article = $this->Articles->get(1, [
             'contain' => ['Comments']
@@ -656,7 +656,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertEmpty($article->comments[0]->trashed);
 
         $article->set('comments', []);
-        $article->dirty('comments', true);
+        $article->setDirty('comments', true);
 
         $this->assertInstanceOf('Cake\Datasource\EntityInterface', $this->Articles->save($article));
 
