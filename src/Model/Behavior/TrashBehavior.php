@@ -320,7 +320,7 @@ class TrashBehavior extends Behavior
                 throw new RuntimeException('TrashBehavior: "field" config needs to be provided.');
             }
 
-            $this->getConfig('field', $field);
+            $this->setConfig('field', $field);
         }
 
         if ($aliased) {

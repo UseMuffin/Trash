@@ -703,6 +703,21 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Test that getTrashField() uses a default value if no field is configured and that it sets the name of the field
+     * in the config array.
+     *
+     * @return void
+     */
+    public function testGetTrashFieldFallbackToDefault()
+    {
+        $trash = new TrashBehavior($this->Articles, ['field' => '']);
+
+        $this->assertEmpty($trash->getConfig('field'));
+        $this->assertEquals('Articles.trashed', $trash->getTrashField());
+        $this->assertEquals('trashed', $trash->getConfig('field'));
+    }
+
+    /**
      * Test that getTrashField() defaults to deleted or trashed
      * when found in schema and not specified
      *
