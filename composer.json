@@ -31,11 +31,11 @@
         "source": "https://github.com/usemuffin/trash"
     },
     "require": {
-        "cakephp/orm": "3.6.0-beta1"
+        "cakephp/orm": "3.6.0-beta2"
     },
     "require-dev": {
         "phpunit/phpunit": "<6.0",
-        "cakephp/cakephp": "3.6.0-beta1"
+        "cakephp/cakephp": "3.6.0-beta2"
     },
     "autoload": {
         "psr-4": {
