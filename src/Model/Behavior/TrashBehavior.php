@@ -105,9 +105,11 @@ class TrashBehavior extends Behavior
 
         $event->stopPropagation();
 
-        $event->subject()->dispatchEvent('Model.afterDelete', [
+        /** @var \Cake\ORM\Table $table */
+        $table = $event->subject();
+        $table->dispatchEvent('Model.afterDelete', [
             'entity' => $entity,
-            'options' => $options
+            'options' => $options,
         ]);
 
         return true;
