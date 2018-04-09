@@ -157,15 +157,18 @@ class TrashBehavior extends Behavior
     public function beforeFind(Event $event, Query $query, ArrayObject $options, $primary)
     {
         $field = $this->getTrashField();
-        $check = false;
+        $found = false;
 
-        $query->traverseExpressions(function ($expression) use (&$check, $field) {
-            if ($expression instanceof IdentifierExpression) {
-                !$check && $check = $expression->getIdentifier() === $field;
+        $query->traverseExpressions(function ($expression) use (&$found, $field) {
+            if ($found === false
+                && $expression instanceof IdentifierExpression
+                && $expression->getIdentifier() === $field
+            ) {
+                $found = true;
             }
         });
 
-        if ($check) {
+        if ($found) {
             return;
         }
 
