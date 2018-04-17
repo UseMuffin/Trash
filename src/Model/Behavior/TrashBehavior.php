@@ -106,7 +106,7 @@ class TrashBehavior extends Behavior
         $event->stopPropagation();
 
         /** @var \Cake\ORM\Table $table */
-        $table = $event->subject();
+        $table = $event->getSubject();
         $table->dispatchEvent('Model.afterDelete', [
             'entity' => $entity,
             'options' => $options,
@@ -127,8 +127,10 @@ class TrashBehavior extends Behavior
     {
         $primaryKey = (array)$this->_table->getPrimaryKey();
 
-        if (!$entity->has($primaryKey)) {
-            throw new RuntimeException();
+        foreach ($primaryKey as $field) {
+            if (!$entity->has($field)) {
+                throw new RuntimeException();
+            }
         }
 
         foreach ($this->_table->associations() as $association) {
