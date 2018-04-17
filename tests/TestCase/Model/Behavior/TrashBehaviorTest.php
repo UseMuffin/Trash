@@ -129,7 +129,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testDeleteOptionsArePassedToCascadingDeletes()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
@@ -171,7 +171,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testDeleteOptionsArePassedToSave()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
@@ -388,7 +388,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingTrash()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
@@ -411,7 +411,7 @@ class TrashBehaviorTest extends TestCase
 
     public function testCascadingUntrashOptionsArePassedToSave()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
@@ -473,11 +473,11 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingUntrashEntity()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
-        $association = $this->Articles->getAssociation('CompositeArticlesUsers');
+        $association = $this->Articles->CompositeArticlesUsers;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
@@ -552,11 +552,11 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingUntrashAll()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
-        $association = $this->Articles->getAssociation('CompositeArticlesUsers');
+        $association = $this->Articles->CompositeArticlesUsers;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
@@ -615,7 +615,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testCascadingUntrashFailure()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
         $association->getEventManager()->on('Model.beforeSave', function () {
@@ -643,7 +643,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testTrashDependentViaReplaceSaveStrategy()
     {
-        $association = $this->Articles->getAssociation('Comments');
+        $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
         $association->setSaveStrategy(HasMany::SAVE_REPLACE);
