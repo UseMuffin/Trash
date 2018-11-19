@@ -3,6 +3,7 @@ namespace Muffin\Trash\Model\Behavior;
 
 use ArrayObject;
 use Cake\Core\Configure;
+use Cake\Database\Expression\Comparison;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
 use Cake\Datasource\EntityInterface;
@@ -167,6 +168,13 @@ class TrashBehavior extends Behavior
             if ($found === false
                 && $expression instanceof IdentifierExpression
                 && $expression->getIdentifier() === $field
+            ) {
+                $found = true;
+            }
+
+            if ($found === false
+                && $expression instanceof Comparison
+                && $expression->getField() === $field
             ) {
                 $found = true;
             }

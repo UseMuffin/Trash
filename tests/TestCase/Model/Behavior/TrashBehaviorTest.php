@@ -4,6 +4,7 @@ namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
+use Cake\I18n\Time;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -105,6 +106,20 @@ class TrashBehaviorTest extends TestCase
     {
         $result = $this->Articles->find('all')->toArray();
         $this->assertCount(1, $result);
+    }
+
+    /**
+     * Test the beforeFind callback when using the trash field
+     *
+     * @return void
+     */
+    public function testBeforeFindWithTrashField()
+    {
+        $query = $this->Articles->find('all');
+        $result = $query->where(
+            [$this->Articles->aliasField('trashed') . ' >= ' => '2000-01-01 00:00:00']
+        )->toArray();
+        $this->assertCount(2, $result);
     }
 
     /**
