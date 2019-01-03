@@ -135,7 +135,7 @@ class TrashBehaviorTest extends TestCase
         $result = $query->where(function (QueryExpression $exp) use ($trashedField) {
             return $exp->between($trashedField, new Time('-1 day'), new Time('+1 day'));
         })->toArray();
-        $this->assertCount(2, $result);;
+        $this->assertCount(2, $result);
     }
 
     /**
