@@ -2,8 +2,10 @@
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
+use Cake\I18n\Time;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -108,17 +110,32 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
-     * Test the beforeFind callback when using the trash field
+     * Test the beforeFind callback when using the trash field in a comparison
      *
      * @return void
      */
-    public function testBeforeFindWithTrashField()
+    public function testBeforeFindWithTrashFieldInComparison()
     {
         $query = $this->Articles->find('all');
         $result = $query->where(
-            [$this->Articles->aliasField('trashed') . ' >= ' => '2000-01-01 00:00:00']
+            [$this->Articles->aliasField('trashed') . ' >= ' => Time::minValue()]
         )->toArray();
         $this->assertCount(2, $result);
+    }
+
+    /**
+     * Test the beforeFind callback when using the trash field in a between expression
+     *
+     * @return void
+     */
+    public function testBeforeFindWithTrashFieldInBetweenComparison()
+    {
+        $query = $this->Articles->find('all');
+        $trashedField = $this->Articles->aliasField('trashed');
+        $result = $query->where(function (QueryExpression $exp) use ($trashedField) {
+            return $exp->between($trashedField, Time::minValue(), Time::maxValue());
+        })->toArray();
+        $this->assertCount(2, $result);;
     }
 
     /**

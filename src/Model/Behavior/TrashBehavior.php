@@ -3,6 +3,7 @@ namespace Muffin\Trash\Model\Behavior;
 
 use ArrayObject;
 use Cake\Core\Configure;
+use Cake\Database\Expression\BetweenExpression;
 use Cake\Database\Expression\Comparison;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
@@ -165,15 +166,15 @@ class TrashBehavior extends Behavior
         $found = false;
 
         $query->traverseExpressions(function ($expression) use (&$found, $field) {
-            if ($found === false
-                && $expression instanceof IdentifierExpression
-                && $expression->getIdentifier() === $field
-            ) {
+            if ($found) {
+                return;
+            }
+
+            if ($expression instanceof IdentifierExpression && $expression->getIdentifier() === $field) {
                 $found = true;
             }
 
-            if ($found === false
-                && $expression instanceof Comparison
+            if (($expression instanceof Comparison || $expression instanceof BetweenExpression)
                 && $expression->getField() === $field
             ) {
                 $found = true;
