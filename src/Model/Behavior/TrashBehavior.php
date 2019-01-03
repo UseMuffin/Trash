@@ -172,12 +172,16 @@ class TrashBehavior extends Behavior
 
             if ($expression instanceof IdentifierExpression && $expression->getIdentifier() === $field) {
                 $found = true;
+
+                return;
             }
 
             if (($expression instanceof Comparison || $expression instanceof BetweenExpression)
                 && $expression->getField() === $field
             ) {
                 $found = true;
+
+                return;
             }
         });
 
