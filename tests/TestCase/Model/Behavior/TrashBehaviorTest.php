@@ -118,7 +118,7 @@ class TrashBehaviorTest extends TestCase
     {
         $query = $this->Articles->find('all');
         $result = $query->where(
-            [$this->Articles->aliasField('trashed') . ' >= ' => Time::minValue()]
+            [$this->Articles->aliasField('trashed') . ' >= ' => new Time('-1 day')]
         )->toArray();
         $this->assertCount(2, $result);
     }
@@ -133,7 +133,7 @@ class TrashBehaviorTest extends TestCase
         $query = $this->Articles->find('all');
         $trashedField = $this->Articles->aliasField('trashed');
         $result = $query->where(function (QueryExpression $exp) use ($trashedField) {
-            return $exp->between($trashedField, Time::minValue(), Time::maxValue());
+            return $exp->between($trashedField, new Time('-1 day'), new Time('+1 day'));
         })->toArray();
         $this->assertCount(2, $result);;
     }
