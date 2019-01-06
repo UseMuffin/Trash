@@ -51,7 +51,10 @@ class TrashBehaviorTest extends TestCase
             'targetForeignKey' => 'article_id',
         ]);
 
-        $this->CompositeArticlesUsers = TableRegistry::get('Muffin/Trash.CompositeArticlesUsers', ['table' => 'trash_composite_articles_users']);
+        $this->CompositeArticlesUsers = TableRegistry::get(
+            'Muffin/Trash.CompositeArticlesUsers',
+            ['table' => 'trash_composite_articles_users']
+        );
         $this->CompositeArticlesUsers->addBehavior('Muffin/Trash.Trash');
 
         $this->Comments = TableRegistry::get('Muffin/Trash.Comments', ['table' => 'trash_comments']);
@@ -61,7 +64,7 @@ class TrashBehaviorTest extends TestCase
         ]);
         $this->Comments->addBehavior('CounterCache', ['Articles' => [
             'comment_count',
-            'total_comment_count' => ['finder' => 'withTrashed']
+            'total_comment_count' => ['finder' => 'withTrashed'],
         ]]);
         $this->Comments->addBehavior('Muffin/Trash.Trash');
 
@@ -186,7 +189,7 @@ class TrashBehaviorTest extends TestCase
 
         $article = $this->Articles->get(1);
         $result = $this->Articles->delete($article, [
-            'deleteOptions' => true
+            'deleteOptions' => true,
         ]);
 
         $this->assertTrue($result);
@@ -237,7 +240,7 @@ class TrashBehaviorTest extends TestCase
 
         $article = $this->Articles->get(1);
         $result = $this->Articles->delete($article, [
-            'deleteOptions' => true
+            'deleteOptions' => true,
         ]);
 
         $this->assertTrue($result);
@@ -429,15 +432,15 @@ class TrashBehaviorTest extends TestCase
         $article = $this->Articles->find('withTrashed')
             ->where(['Articles.id' => 1])
             ->contain(['Comments' => [
-                'finder' => 'withTrashed'
+                'finder' => 'withTrashed',
             ]])
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->trashed);
+        $this->assertInstanceOf(Time::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
     }
 
     public function testCascadingUntrashOptionsArePassedToSave()
@@ -487,10 +490,10 @@ class TrashBehaviorTest extends TestCase
         );
 
         $result = $this->Articles->cascadingRestoreTrash($article, [
-            'restoreOptions' => true
+            'restoreOptions' => true,
         ]);
 
-        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $result);
+        $this->assertInstanceOf(EntityInterface::class, $result);
         $this->assertTrue($mainHasRestoreOptions);
         $this->assertTrue($dependentHasRestoreOptions);
         $this->assertTrue($dependentIsNotPrimary);
@@ -526,34 +529,43 @@ class TrashBehaviorTest extends TestCase
             ->where(['Articles.id' => 1])
             ->contain([
                 'Comments' => [
-                    'finder' => 'withTrashed'
+                    'finder' => 'withTrashed',
                 ],
                 'CompositeArticlesUsers' => [
-                    'finder' => 'withTrashed'
+                    'finder' => 'withTrashed',
                 ],
             ])
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->trashed);
+        $this->assertInstanceOf(Time::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
 
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf(Time::class, $article->composite_articles_users[0]->trashed);
 
-        $unrelatedComment = $this->Articles->Comments->getTarget()->findById(3)->find('withTrashed')->first();
+        $unrelatedComment = $this->Articles->Comments->getTarget()
+            ->findById(3)
+            ->find('withTrashed')
+            ->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedComment->trashed);
+        $this->assertInstanceOf(Time::class, $unrelatedComment->trashed);
 
-        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()->findByArticleId(3)->find('withTrashed')->first();
+        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()
+            ->findByArticleId(3)
+            ->find('withTrashed')
+            ->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedArticleUser->trashed);
+        $this->assertInstanceOf(Time::class, $unrelatedArticleUser->trashed);
 
-        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $this->Articles->cascadingRestoreTrash($article));
+        $this->assertInstanceOf(
+            EntityInterface::class,
+            $this->Articles->cascadingRestoreTrash($article)
+        );
 
         $article = $this->Articles
             ->find()
@@ -565,15 +577,21 @@ class TrashBehaviorTest extends TestCase
         $this->assertEmpty($article->comments[0]->trashed);
         $this->assertEmpty($article->composite_articles_users[0]->trashed);
 
-        $unrelatedComment = $this->Articles->Comments->getTarget()->findById(3)->find('withTrashed')->first();
+        $unrelatedComment = $this->Articles->Comments->getTarget()
+            ->findById(3)
+            ->find('withTrashed')
+            ->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedComment->trashed);
+        $this->assertInstanceOf(Time::class, $unrelatedComment->trashed);
 
-        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()->findByArticleId(3)->find('withTrashed')->first();
+        $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()
+            ->findByArticleId(3)
+            ->find('withTrashed')
+            ->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $unrelatedArticleUser->trashed);
+        $this->assertInstanceOf(Time::class, $unrelatedArticleUser->trashed);
     }
 
     /**
@@ -605,22 +623,22 @@ class TrashBehaviorTest extends TestCase
             ->where(['Articles.id' => 1])
             ->contain([
                 'Comments' => [
-                    'finder' => 'withTrashed'
+                    'finder' => 'withTrashed',
                 ],
                 'CompositeArticlesUsers' => [
-                    'finder' => 'withTrashed'
+                    'finder' => 'withTrashed',
                 ],
             ])
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->trashed);
+        $this->assertInstanceOf(Time::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
 
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf(Time::class, $article->composite_articles_users[0]->trashed);
 
         $this->assertEquals(8, $this->Articles->cascadingRestoreTrash());
 
@@ -680,7 +698,7 @@ class TrashBehaviorTest extends TestCase
         $association->setSaveStrategy(HasMany::SAVE_REPLACE);
 
         $article = $this->Articles->get(1, [
-            'contain' => ['Comments']
+            'contain' => ['Comments'],
         ]);
 
         $this->assertEquals(1, $article->comments[0]->id);
@@ -689,20 +707,20 @@ class TrashBehaviorTest extends TestCase
         $article->set('comments', []);
         $article->setDirty('comments', true);
 
-        $this->assertInstanceOf('Cake\Datasource\EntityInterface', $this->Articles->save($article));
+        $this->assertInstanceOf(EntityInterface::class, $this->Articles->save($article));
 
         $article = $this->Articles
             ->find('withTrashed')
             ->where(['Articles.id' => 1])
             ->contain(['Comments' => [
-                'finder' => 'withTrashed'
+                'finder' => 'withTrashed',
             ]])
             ->first();
 
         $this->assertNotEmpty($article->comments);
         $this->assertEquals(1, $article->comments[0]->id);
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf('Cake\I18n\Time', $article->comments[0]->trashed);
+        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
     }
 
     /**
@@ -734,8 +752,8 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
-     * Test that getTrashField() uses a default value if no field is configured and that it sets the name of the field
-     * in the config array.
+     * Test that getTrashField() uses a default value if no field is configured
+     * and that it sets the name of the field in the config array.
      *
      * @return void
      */
@@ -789,10 +807,10 @@ class TrashBehaviorTest extends TestCase
                 [],
                 [
                     'Model.beforeDelete' => [
-                        'callable' => 'beforeDelete'
+                        'callable' => 'beforeDelete',
                     ],
                     'Model.beforeFind' => [
-                        'callable' => 'beforeFind'
+                        'callable' => 'beforeFind',
                     ],
                 ],
             ],
@@ -802,10 +820,10 @@ class TrashBehaviorTest extends TestCase
                 ],
                 [
                     'Model.beforeDelete' => [
-                        'callable' => 'beforeDelete'
+                        'callable' => 'beforeDelete',
                     ],
                     'Model.beforeFind' => [
-                        'callable' => 'beforeFind'
+                        'callable' => 'beforeFind',
                     ],
                 ],
             ],
@@ -835,7 +853,7 @@ class TrashBehaviorTest extends TestCase
                 ],
                 [
                     'Model.beforeFind' => [
-                        'callable' => 'beforeFind'
+                        'callable' => 'beforeFind',
                     ],
                 ],
             ],
@@ -855,7 +873,7 @@ class TrashBehaviorTest extends TestCase
                 [
                     'Model.beforeDelete' => [
                         'callable' => function () {
-                        }
+                        },
                     ],
                     'Model.beforeFind' => [
                         'callable' => [$this, 'beforeDelete'],
