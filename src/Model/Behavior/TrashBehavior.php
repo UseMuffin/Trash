@@ -22,7 +22,6 @@ use RuntimeException;
  */
 class TrashBehavior extends Behavior
 {
-
     /**
      * Default configuration.
      *
@@ -163,15 +162,17 @@ class TrashBehavior extends Behavior
     public function beforeFind(Event $event, Query $query, ArrayObject $options, $primary)
     {
         $field = $this->getTrashField();
-        $found = false;
+        $addCondition = true;
 
-        $query->traverseExpressions(function ($expression) use (&$found, $field) {
-            if ($found) {
+        $query->traverseExpressions(function ($expression) use (&$addCondition, $field) {
+            if (!$addCondition) {
                 return;
             }
 
-            if ($expression instanceof IdentifierExpression && $expression->getIdentifier() === $field) {
-                $found = true;
+            if ($expression instanceof IdentifierExpression
+                && $expression->getIdentifier() === $field
+            ) {
+                $addCondition = false;
 
                 return;
             }
@@ -179,17 +180,13 @@ class TrashBehavior extends Behavior
             if (($expression instanceof Comparison || $expression instanceof BetweenExpression)
                 && $expression->getField() === $field
             ) {
-                $found = true;
-
-                return;
+                $addCondition = false;
             }
         });
 
-        if ($found) {
-            return;
+        if ($addCondition) {
+            $query->andWhere($query->newExpr()->isNull($field));
         }
-
-        $query->andWhere($query->newExpr()->isNull($field));
     }
 
     /**
@@ -362,7 +359,8 @@ class TrashBehavior extends Behavior
         if ($association->getTarget()->hasBehavior('Trash')
             && $association->isOwningSide($table)
             && $association->getDependent()
-            && $association->getCascadeCallbacks()) {
+            && $association->getCascadeCallbacks()
+        ) {
             return true;
         }
 
