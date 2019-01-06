@@ -228,7 +228,7 @@ class TrashBehavior extends Behavior
      * can take.
      * @return int Returns the number of affected rows.
      */
-    public function emptyTrash($conditions)
+    public function emptyTrash($conditions = null)
     {
         return $this->_table->deleteAll(
             [
