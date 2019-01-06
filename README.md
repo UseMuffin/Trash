@@ -21,12 +21,6 @@ You then need to load the plugin. You can use the shell command:
 bin/cake plugin load Muffin/Trash
 ```
 
-or by manually adding statement shown below to `bootstrap.php`:
-
-```php
-Plugin::load('Muffin/Trash');
-```
-
 ## Usage
 
 In your table(s), add the behavior like you would for any other behavior:
@@ -36,8 +30,9 @@ In your table(s), add the behavior like you would for any other behavior:
 $this->addBehavior('Muffin/Trash.Trash');
 ```
 
-By default, the behavior will auto-detect the `DATETIME` column used to track trashed (soft-deleted) records but
-only if you are using `deleted` or `trashed` as names. Otherwise, you could customize that when adding the behavior:
+By default, the behavior will auto-detect the `DATETIME` column used to track
+trashed (soft-deleted) records but only if you are using `deleted` or `trashed`
+as names. Otherwise, you could customize that when adding the behavior:
 
 ```php
 // in the initialize() method
@@ -52,8 +47,9 @@ or, at the global level, in `bootstrap.php`:
 Configure::write('Muffin/Trash.field', 'deleted_at');
 ```
 
-Finally, if you would like to keep the default cake behavior when running `find()` or `delete()` operations and
-explicitly call the behavior when you need 'trash'-ing functionality, just disable the event(s):
+Finally, if you would like to keep the default cake behavior when running
+`find()` or `delete()` operations and explicitly call the behavior when you need
+'trash'-ing functionality, just disable the event(s):
 
 ```php
 // in the initialize() method
@@ -63,12 +59,13 @@ $this->addBehavior('Muffin/Trash.Trash', [
 ```
 
 ### Cascading deletion
-If you'd like to have related records marked as trashed when deleting a parent item, you can just attach the behavior
-to the related table classes, and set the `'dependent' => true, 'cascadeCallbacks' => true` options in the table
-relationships.
 
-This works on relationships where the item being deleted in the owning side of the relationship. Which means that the
-related table should contain the foreign key.
+If you'd like to have related records marked as trashed when deleting a parent
+item, you can just attach the behavior to the related table classes, and set the
+`'dependent' => true, 'cascadeCallbacks' => true` options in the table relationships.
+
+This works on relationships where the item being deleted in the owning side of
+the relationship. Which means that the related table should contain the foreign key.
 
 ### Custom Finders
 
@@ -103,7 +100,7 @@ http://github.com/usemuffin/trash/issues
 
 ## License
 
-Copyright (c) 2015, [Use Muffin][muffin] and licensed under [The MIT License][mit].
+Copyright (c) 2015-present, [Use Muffin][muffin] and licensed under [The MIT License][mit].
 
 [cakephp]:http://cakephp.org
 [composer]:http://getcomposer.org
