@@ -27,11 +27,11 @@ class TrashBehaviorTest extends TestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.Muffin/Trash.articles',
-        'plugin.Muffin/Trash.comments',
-        'plugin.Muffin/Trash.users',
-        'plugin.Muffin/Trash.articles_users',
-        'plugin.Muffin/Trash.composite_articles_users',
+        'plugin.Muffin/Trash.Articles',
+        'plugin.Muffin/Trash.Comments',
+        'plugin.Muffin/Trash.Users',
+        'plugin.Muffin/Trash.ArticlesUsers',
+        'plugin.Muffin/Trash.CompositeArticlesUsers',
     ];
 
     /**
