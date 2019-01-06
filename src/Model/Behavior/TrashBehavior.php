@@ -222,13 +222,20 @@ class TrashBehavior extends Behavior
     }
 
     /**
-     * Deletes all rows marked as `trashed`.
+     * Deletes all rows matching $conditions and marked as `trashed`.
      *
-     * @return int
+     * @param mixed $conditions Conditions to be used, accepts anything Query::where()
+     * can take.
+     * @return int Returns the number of affected rows.
      */
-    public function emptyTrash()
+    public function emptyTrash($conditions)
     {
-        return $this->_table->deleteAll($this->_getUnaryExpression());
+        return $this->_table->deleteAll(
+            [
+                $this->_getUnaryExpression(),
+                $conditions
+            ]
+        );
     }
 
     /**
