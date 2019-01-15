@@ -156,6 +156,40 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Test the beforeDelete callback with skipTrash.
+     *
+     * @return void
+     */
+    public function testBeforeDeleteWithSkipTrash()
+    {
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->delete($article, ['skipTrash' => true]);
+        $this->assertTrue($result);
+        $this->assertCount(2, $this->Articles->find('withTrashed'));
+    }
+
+    /**
+     * Ensure that when delete with skipTrash, it will cascade into related dependent records
+     *
+     * @return void
+     */
+    public function testCascadingBeforeDeleteWithSkipTrash()
+    {
+        $association = $this->Articles->Comments;
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
+
+        $article = $this->Articles->get(1);
+
+        $this->Articles->delete($article, ['skipTrash' => true]);
+
+        $comments = $this->Comments->find('withTrashed')
+            ->where(['article_id' => 1]);
+
+        $this->assertCount(0, $comments);
+    }
+
+    /**
      * Tests that the options passed to the `delete()` method are being passed on into
      * the cascading delete process.
      *
