@@ -100,6 +100,10 @@ class TrashBehavior extends Behavior
      */
     public function beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)
     {
+        if (!empty($options['skipTrash'])) {
+            return;
+        }
+
         if (!$this->trash($entity, $options->getArrayCopy())) {
             throw new RuntimeException();
         }
