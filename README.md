@@ -58,6 +58,13 @@ $this->addBehavior('Muffin/Trash.Trash', [
 ]);
 ```
 
+### Skip trash
+
+If you would like to hard delete a record, you can add the `'skipTrash' => true` option to the delete function.
+
+If dependent is set to true in your associations, those dependent records will also be hard deleted.
+
+
 ### Cascading deletion
 
 If you'd like to have related records marked as trashed when deleting a parent
