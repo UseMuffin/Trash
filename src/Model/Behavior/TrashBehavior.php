@@ -184,7 +184,9 @@ class TrashBehavior extends Behavior
             }
         });
 
-        if ($addCondition) {
+        $option = $query->getOptions();
+
+        if ($addCondition && empty($option['skipAddTrashCondition'])) {
             $query->andWhere($query->newExpr()->isNull($field));
         }
     }
@@ -210,10 +212,9 @@ class TrashBehavior extends Behavior
      */
     public function findWithTrashed(Query $query, array $options)
     {
-        return $query->where(['OR' => [
-            $query->newExpr()->isNotNull($this->getTrashField()),
-            $query->newExpr()->isNull($this->getTrashField()),
-        ]]);
+        return $query->applyOptions([
+            'skipAddTrashCondition' => true
+        ]);
     }
 
     /**
