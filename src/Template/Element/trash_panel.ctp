@@ -1,5 +1,5 @@
 <section>
-    <h3><?= __('Trashed') ?></h3>
+    <h3><?= __d('app', 'Trashed') ?></h3>
     <div class="trashed-records">
         <strong><?= __d('app', 'Total Trashed Records:') ?></strong>
         <?= $this->Number->format($totalTrashed) ?>
@@ -8,8 +8,8 @@
     <table cellspacing="0" cellpadding="0">
         <thead>
             <tr>
-                <th><?= __('Table') ?></th>
-                <th class="right-text"><?= __('Trashed') ?></th>
+                <th><?= __d('app', 'Table') ?></th>
+                <th class="right-text"><?= __d('app', 'Trashed') ?></th>
             </tr>
         </thead>
         <tbody>
