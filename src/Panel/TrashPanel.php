@@ -34,7 +34,7 @@ class TrashPanel extends DebugPanel
         }
         foreach ($this->_tables as $table) {
             if ($table instanceof Table) {
-                $this->_data['trashed'][$table->table()] = 0;
+                $this->_data['trashed'][$table->getTable()] = 0;
             } else {
                 $this->_data['trashed'][$table] = 0;
             }
@@ -44,7 +44,7 @@ class TrashPanel extends DebugPanel
     /**
      * Counts the number of records trashed from a table
      *
-     * @param string|\Cake\ORM\Table $tableOrName A table object or table name
+     * @param mixed $tableOrName A table object or table name
      *
      * @return int number of records trashed
      */
@@ -55,7 +55,7 @@ class TrashPanel extends DebugPanel
             $Table = TableRegistry::getTableLocator()->get($tableOrName);
         }
         if (! $tableOrName instanceof Table) {
-            Log::warn(__("Failed to countTrashed() on {0}", $tableOrName));
+            Log::warning(__("Failed to countTrashed() on {0}", $tableOrName));
             return -1;
         }
 
@@ -70,7 +70,7 @@ class TrashPanel extends DebugPanel
     public function summary()
     {
         if (!isset($this->_data['totalTrashed'])) {
-            return 0;
+            return __("None trashed");
         }
 
         return __("{0} trashed", $this->_data['totalTrashed']);
@@ -79,7 +79,7 @@ class TrashPanel extends DebugPanel
     /**
      * Shutdown event hook
      *
-     * @param Cake\Event\Event $event A panel event
+     * @param \Cake\Event\Event $event A panel event
      *
      * @return void
      */
@@ -93,7 +93,7 @@ class TrashPanel extends DebugPanel
         foreach ($this->_tables as $table) {
             $count = $this->countTrashed($table);
             if ($table instanceof Table) {
-                $this->_data['trashed'][$table->table()] = $count;
+                $this->_data['trashed'][$table->getTable()] = $count;
             } else {
                 $this->_data['trashed'][$table] = $count;
             }

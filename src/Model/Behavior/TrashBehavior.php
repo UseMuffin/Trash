@@ -382,6 +382,6 @@ class TrashBehavior extends Behavior
                     return $exp->isNotNull($field);
                 }
             )
-            ->count($this->_table->primaryKey());
+            ->count($this->_table->getPrimaryKey());
     }
 }
