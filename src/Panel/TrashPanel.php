@@ -18,7 +18,7 @@ class TrashPanel extends DebugPanel
     /**
      * @var array Array containing names of tables to check for trashed records
      */
-    protected $_tables = [];
+    protected $tables = [];
 
     /**
      * Initialize the TrashPanel
@@ -28,11 +28,11 @@ class TrashPanel extends DebugPanel
     public function initialize()
     {
         $this->_data = ['trashed' => []];
-        $this->_tables = Configure::read('Muffin/Trash.panel.tables');
-        if (empty($this->_tables)) {
-            $this->_tables = [];
+        $this->tables = Configure::read('Muffin/Trash.panel.tables');
+        if (empty($this->tables)) {
+            $this->tables = [];
         }
-        foreach ($this->_tables as $table) {
+        foreach ($this->tables as $table) {
             if ($table instanceof Table) {
                 $this->_data['trashed'][$table->getTable()] = 0;
             } else {
@@ -90,7 +90,7 @@ class TrashPanel extends DebugPanel
             'trashed' => []
         ];
 
-        foreach ($this->_tables as $table) {
+        foreach ($this->tables as $table) {
             $count = $this->countTrashed($table);
             if ($table instanceof Table) {
                 $this->_data['trashed'][$table->getTable()] = $count;
