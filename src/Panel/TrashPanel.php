@@ -52,7 +52,7 @@ class TrashPanel extends DebugPanel
     {
         $Table = $tableOrName;
         if (is_string($tableOrName)) {
-            $Table = TableRegistry::get($tableOrName);
+            $Table = TableRegistry::getTableLocator()->get($tableOrName);
         }
         if (! $tableOrName instanceof Table) {
             Log::warn(__("Failed to countTrashed() on {0}", $tableOrName));
