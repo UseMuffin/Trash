@@ -3,15 +3,15 @@ namespace Muffin\Trash\Panel;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
+use Cake\Log\Log;
 use DebugKit\DebugPanel;
-use RuntimeException;
 
 /**
  * TrashPanel
  *
- * Lists how many records were `Trashed` from the configured tables
- *
+ * A DebugKit Panel that shows how many records were `Trashed`
  */
 class TrashPanel extends DebugPanel
 {
@@ -33,7 +33,7 @@ class TrashPanel extends DebugPanel
             $this->_tables = [];
         }
         foreach ($this->_tables as $table) {
-            if ($table instanceof \Cake\ORM\Table) {
+            if ($table instanceof Table) {
                 $this->_data['trashed'][$table->table()] = 0;
             } else {
                 $this->_data['trashed'][$table] = 0;
@@ -54,13 +54,9 @@ class TrashPanel extends DebugPanel
         if (is_string($tableOrName)) {
             $Table = TableRegistry::get($tableOrName);
         }
-        if (! $tableOrName instanceof \Cake\ORM\Table) {
-            // TODO: log that w failed to find the table here
+        if (! $tableOrName instanceof Table) {
+            Log::warn(__("Failed to countTrashed() on {0}", $tableOrName));
             return -1;
-        }
-        // We need to disable TrashBehavior here enabled will give us zero results
-        if ($Table->hasBehavior('Muffin/Trash.Trash')) {
-            $Table->behaviors()->unload('Muffin/Trash.Trash');
         }
 
         return $Table->countTrashed();
@@ -96,7 +92,7 @@ class TrashPanel extends DebugPanel
 
         foreach ($this->_tables as $table) {
             $count = $this->countTrashed($table);
-            if ($table instanceof \Cake\ORM\Table) {
+            if ($table instanceof Table) {
                 $this->_data['trashed'][$table->table()] = $count;
             } else {
                 $this->_data['trashed'][$table] = $count;
