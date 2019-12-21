@@ -6,7 +6,7 @@
     >
 
     <testsuites>
-        <testsuite name="{{pluginName}} Test Cases">
+        <testsuite name="Muffin/Trash Test Cases">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>

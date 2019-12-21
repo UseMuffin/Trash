@@ -19,7 +19,7 @@ class CommentsFixture extends TestFixture
         'body' => ['type' => 'text', 'null' => false],
         'trashed' => ['type' => 'datetime', 'null' => true],
         'created' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     /**
@@ -33,7 +33,7 @@ class CommentsFixture extends TestFixture
         ['user_id' => 1, 'article_id' => 2, 'body' => 'Even more dummy text'],
     ];
 
-    public function init()
+    public function init(): void
     {
         $created = date('Y-m-d H:i:s');
         array_walk($this->records, function (&$record) use ($created) {

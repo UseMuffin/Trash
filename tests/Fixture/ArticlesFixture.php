@@ -22,7 +22,7 @@ class ArticlesFixture extends TestFixture
         'trashed' => ['type' => 'datetime', 'null' => true],
         'created' => ['type' => 'datetime', 'null' => true],
         'modified' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     /**
@@ -36,7 +36,7 @@ class ArticlesFixture extends TestFixture
         ['title' => 'Third Article', 'sub_title' => 'subtitle 3'],
     ];
 
-    public function init()
+    public function init(): void
     {
         $created = $modified = new Time();
         array_walk($this->records, function (&$record) use ($created, $modified) {
