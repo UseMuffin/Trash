@@ -19,7 +19,7 @@ class CommentsFixture extends TestFixture
         'body' => ['type' => 'text', 'null' => false],
         'trashed' => ['type' => 'datetime', 'null' => true],
         'created' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     /**

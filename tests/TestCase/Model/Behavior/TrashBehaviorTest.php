@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
 use ArrayObject;

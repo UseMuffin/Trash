@@ -16,7 +16,7 @@ class ArticlesUsersFixture extends TestFixture
         'id' => ['type' => 'integer'],
         'article_id' => ['type' => 'integer'],
         'user_id' => ['type' => 'integer'],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     /**
