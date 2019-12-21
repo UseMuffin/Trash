@@ -13,8 +13,8 @@ use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Muffin\Trash\Model\Behavior\TrashBehavior;
 use InvalidArgumentException;
+use Muffin\Trash\Model\Behavior\TrashBehavior;
 use RuntimeException;
 
 /**
