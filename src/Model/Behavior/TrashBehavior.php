@@ -281,7 +281,7 @@ class TrashBehavior extends Behavior
     {
         $result = $this->restoreTrash($entity, $options);
 
-        /** @var Association $association */
+        /** @var \Cake\ORM\Association $association */
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
