@@ -127,7 +127,7 @@ class TrashBehavior extends Behavior
      * @return bool
      * @throws \RuntimeException if no primary key is set on entity.
      */
-    public function trash(EntityInterface $entity, array $options = [])
+    public function trash(EntityInterface $entity, array $options = []): bool
     {
         $primaryKey = (array)$this->_table->getPrimaryKey();
 
@@ -203,7 +203,7 @@ class TrashBehavior extends Behavior
      * @param array $options Options.
      * @return \Cake\ORM\Query
      */
-    public function findOnlyTrashed(Query $query, array $options)
+    public function findOnlyTrashed(Query $query, array $options): Query
     {
         return $query->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
     }
@@ -215,7 +215,7 @@ class TrashBehavior extends Behavior
      * @param array $options Options.
      * @return \Cake\ORM\Query
      */
-    public function findWithTrashed(Query $query, array $options)
+    public function findWithTrashed(Query $query, array $options): Query
     {
         return $query->applyOptions([
             'skipAddTrashCondition' => true,
@@ -229,7 +229,7 @@ class TrashBehavior extends Behavior
      * can take.
      * @return int Count Returns the affected rows.
      */
-    public function trashAll($conditions)
+    public function trashAll($conditions): int
     {
         return $this->_table->updateAll(
             [$this->getTrashField(false) => new Time()],
@@ -242,7 +242,7 @@ class TrashBehavior extends Behavior
      *
      * @return int
      */
-    public function emptyTrash()
+    public function emptyTrash(): int
     {
         return $this->_table->deleteAll($this->_getUnaryExpression());
     }
@@ -323,7 +323,7 @@ class TrashBehavior extends Behavior
      * @param bool $aliased Should field be aliased or not. Default true.
      * @return string
      */
-    public function getTrashField($aliased = true)
+    public function getTrashField(bool $aliased = true): string
     {
         $field = $this->getConfig('field');
 
@@ -336,6 +336,7 @@ class TrashBehavior extends Behavior
                 }
             }
 
+            /** @psalm-suppress RedundantCondition */
             if (empty($field)) {
                 $field = Configure::read('Muffin/Trash.field');
             }
@@ -361,7 +362,7 @@ class TrashBehavior extends Behavior
      * @param \Cake\ORM\Table $table The table instance to check
      * @return bool
      */
-    protected function _isRecursable(Association $association, Table $table)
+    protected function _isRecursable(Association $association, Table $table): bool
     {
         if (
             $association->getTarget()->hasBehavior('Trash')
