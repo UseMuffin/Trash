@@ -28,7 +28,7 @@ class UsersFixture extends TestFixture
         ['name' => 'Dummy'],
     ];
 
-    public function init()
+    public function init(): void
     {
         $created = date('Y-m-d H:i:s');
         array_walk($this->records, function (&$record) use ($created) {

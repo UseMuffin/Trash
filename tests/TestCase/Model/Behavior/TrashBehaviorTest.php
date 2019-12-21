@@ -1,11 +1,12 @@
 <?php
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
+use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
-use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -39,7 +40,7 @@ class TrashBehaviorTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -94,7 +95,7 @@ class TrashBehaviorTest extends TestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         TableRegistry::clear();
@@ -121,7 +122,7 @@ class TrashBehaviorTest extends TestCase
     {
         $query = $this->Articles->find('all');
         $result = $query->where(
-            [$this->Articles->aliasField('trashed') . ' >= ' => new Time('-1 day')]
+            [$this->Articles->aliasField('trashed') . ' >= ' => new FrozenTime('-1 day')]
         )->toArray();
         $this->assertCount(2, $result);
     }
@@ -136,7 +137,7 @@ class TrashBehaviorTest extends TestCase
         $query = $this->Articles->find('all');
         $trashedField = $this->Articles->aliasField('trashed');
         $result = $query->where(function (QueryExpression $exp) use ($trashedField) {
-            return $exp->between($trashedField, new Time('-1 day'), new Time('+1 day'));
+            return $exp->between($trashedField, new FrozenTime('-1 day'), new FrozenTime('+1 day'));
         })->toArray();
         $this->assertCount(2, $result);
     }
@@ -172,7 +173,7 @@ class TrashBehaviorTest extends TestCase
         $this->Comments->getEventManager()->on(
             'Model.beforeDelete',
             ['priority' => 1],
-            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$hasDeleteOptionsBefore) {
+            function (Event $event, EntityInterface $entity, ArrayObject $options) use (&$hasDeleteOptionsBefore) {
                 if (isset($options['deleteOptions'])) {
                     $hasDeleteOptionsBefore = true;
                 }
@@ -180,7 +181,7 @@ class TrashBehaviorTest extends TestCase
         );
         $this->Comments->getEventManager()->on(
             'Model.afterDelete',
-            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$hasDeleteOptionsAfter) {
+            function (Event $event, EntityInterface $entity, ArrayObject $options) use (&$hasDeleteOptionsAfter) {
                 if (isset($options['deleteOptions'])) {
                     $hasDeleteOptionsAfter = true;
                 }
@@ -214,7 +215,7 @@ class TrashBehaviorTest extends TestCase
         $dependentIsNotPrimary = false;
         $this->Articles->getEventManager()->on(
             'Model.beforeSave',
-            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$mainHasDeleteOptions) {
+            function (Event $event, EntityInterface $entity, ArrayObject $options) use (&$mainHasDeleteOptions) {
                 if (isset($options['deleteOptions'])) {
                     $mainHasDeleteOptions = true;
                 }
@@ -225,7 +226,7 @@ class TrashBehaviorTest extends TestCase
             function (
                 Event $event,
                 EntityInterface $entity,
-                \ArrayObject $options
+                ArrayObject $options
             ) use (
                 &$dependentHasDeleteOptions,
                 &$dependentIsNotPrimary
@@ -437,10 +438,10 @@ class TrashBehaviorTest extends TestCase
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf(Time::class, $article->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
     }
 
     public function testCascadingUntrashOptionsArePassedToSave()
@@ -465,7 +466,7 @@ class TrashBehaviorTest extends TestCase
         $dependentIsNotPrimary = false;
         $this->Articles->getEventManager()->on(
             'Model.beforeSave',
-            function (Event $event, EntityInterface $entity, \ArrayObject $options) use (&$mainHasRestoreOptions) {
+            function (Event $event, EntityInterface $entity, ArrayObject $options) use (&$mainHasRestoreOptions) {
                 if (isset($options['restoreOptions'])) {
                     $mainHasRestoreOptions = true;
                 }
@@ -476,7 +477,7 @@ class TrashBehaviorTest extends TestCase
             function (
                 Event $event,
                 EntityInterface $entity,
-                \ArrayObject $options
+                ArrayObject $options
             ) use (
                 &$dependentHasRestoreOptions,
                 &$dependentIsNotPrimary
@@ -538,13 +539,13 @@ class TrashBehaviorTest extends TestCase
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf(Time::class, $article->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
 
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
-        $this->assertInstanceOf(Time::class, $article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->composite_articles_users[0]->trashed);
 
         $unrelatedComment = $this->Articles->Comments->getTarget()
             ->findById(3)
@@ -552,7 +553,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
-        $this->assertInstanceOf(Time::class, $unrelatedComment->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $unrelatedComment->trashed);
 
         $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()
             ->findByArticleId(3)
@@ -560,7 +561,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
-        $this->assertInstanceOf(Time::class, $unrelatedArticleUser->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $unrelatedArticleUser->trashed);
 
         $this->assertInstanceOf(
             EntityInterface::class,
@@ -583,7 +584,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
-        $this->assertInstanceOf(Time::class, $unrelatedComment->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $unrelatedComment->trashed);
 
         $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()
             ->findByArticleId(3)
@@ -591,7 +592,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
-        $this->assertInstanceOf(Time::class, $unrelatedArticleUser->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $unrelatedArticleUser->trashed);
     }
 
     /**
@@ -632,13 +633,13 @@ class TrashBehaviorTest extends TestCase
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf(Time::class, $article->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
 
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
-        $this->assertInstanceOf(Time::class, $article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->composite_articles_users[0]->trashed);
 
         $this->assertEquals(8, $this->Articles->cascadingRestoreTrash());
 
@@ -720,18 +721,18 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->comments);
         $this->assertEquals(1, $article->comments[0]->id);
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(Time::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
     }
 
     /**
      * Test that getTrashField() throws exception if "field" is not specified
      * and cannot be introspected.
      *
-     * @expectedException RuntimeException
      * @return void
      */
     public function testGetTrashFieldException()
     {
+        $this->expectException('RuntimeException');
         $trash = new TrashBehavior($this->Users);
         $trash->getTrashField();
     }

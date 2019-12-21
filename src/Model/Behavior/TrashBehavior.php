@@ -1,6 +1,8 @@
 <?php
 namespace Muffin\Trash\Model\Behavior;
 
+use InvalidArgumentException;
+use Cake\Event\EventInterface;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Database\Expression\BetweenExpression;
@@ -46,7 +48,7 @@ class TrashBehavior extends Behavior
      * @param array $config The config for this behavior.
      * @return void
      */
-    public function initialize(array $config)
+    public function initialize(array $config): void
     {
         if (!empty($config['events'])) {
             $this->setConfig('events', $config['events'], false);
@@ -59,7 +61,7 @@ class TrashBehavior extends Behavior
      * @return array
      * @throws \InvalidArgumentException When events are configured in an invalid format.
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         $events = [];
         if ($this->getConfig('events') === false) {
@@ -74,7 +76,7 @@ class TrashBehavior extends Behavior
                 $event = ['callable' => $event];
             }
             if (!is_array($event)) {
-                throw new \InvalidArgumentException('Event should be string or array');
+                throw new InvalidArgumentException('Event should be string or array');
             }
             $priority = $this->getConfig('priority');
             if (!array_key_exists('callable', $event) || $event['callable'] === null) {
@@ -98,7 +100,7 @@ class TrashBehavior extends Behavior
      * @return true
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
-    public function beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!$this->trash($entity, $options->getArrayCopy())) {
             throw new RuntimeException();
@@ -159,7 +161,7 @@ class TrashBehavior extends Behavior
      * @param bool $primary Primary or associated table being queries.
      * @return void
      */
-    public function beforeFind(Event $event, Query $query, ArrayObject $options, $primary)
+    public function beforeFind(EventInterface $event, Query $query, ArrayObject $options, $primary)
     {
         $field = $this->getTrashField();
         $addCondition = true;

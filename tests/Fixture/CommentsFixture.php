@@ -33,7 +33,7 @@ class CommentsFixture extends TestFixture
         ['user_id' => 1, 'article_id' => 2, 'body' => 'Even more dummy text'],
     ];
 
-    public function init()
+    public function init(): void
     {
         $created = date('Y-m-d H:i:s');
         array_walk($this->records, function (&$record) use ($created) {

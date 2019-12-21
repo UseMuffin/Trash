@@ -5,7 +5,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/muffin/trash.svg?style=flat-square)](https://packagist.org/packages/muffin/trash)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
-Adds "soft"-delete support to CakePHP 3 tables.
+Adds "soft"-delete support to CakePHP 4 tables.
 
 ## Install
 
