@@ -13,7 +13,9 @@ use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use InvalidArgumentException;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
+use RuntimeException;
 
 /**
  * @property \Cake\ORM\Table Users
@@ -21,6 +23,8 @@ use Muffin\Trash\Model\Behavior\TrashBehavior;
  * @property \Cake\ORM\Table Comments
  * @property \Cake\ORM\Table Articles
  * @property \Muffin\Trash\Model\Behavior\TrashBehavior Behavior
+ *
+ * @property \Cake\ORM\Table @mixin \Muffin\Trash\Model\Behavior\TrashBehavior
  */
 class TrashBehaviorTest extends TestCase
 {
@@ -281,6 +285,19 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Test trash function
+     *
+     * @return void
+     */
+    public function testTrashNoPrimaryKey()
+    {
+        $article = $this->Articles->get(1);
+        $article->unset('id');
+        $this->expectException(RuntimeException::class);
+        $this->Articles->trash($article);
+    }
+
+    /**
      * Test trash function with property not accessible
      *
      * @return void
@@ -337,6 +354,20 @@ class TrashBehaviorTest extends TestCase
         $this->Articles->restoreTrash();
 
         $this->assertCount(3, $this->Articles->find());
+    }
+
+    /**
+     * Test it can restore all records in the trash.
+     *
+     * @return void
+     */
+    public function testRestoreDirtyEntity()
+    {
+        $entity = $this->Articles->find('onlyTrashed')->first();
+        $entity->setDirty('title');
+
+        $this->expectException(RuntimeException::class);
+        $this->Articles->restoreTrash($entity);
     }
 
     /**
@@ -781,6 +812,19 @@ class TrashBehaviorTest extends TestCase
             'Articles.trashed',
             $this->Articles->behaviors()->get('Trash')->getTrashField()
         );
+    }
+
+    /**
+     * Test the implementedEvents method.
+     *
+     * @return void
+     */
+    public function testImpEInvalidArgumentException()
+    {
+        $trash = new TrashBehavior($this->Users, ['events' => $this->Articles]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $trash->implementedEvents();
     }
 
     /**
