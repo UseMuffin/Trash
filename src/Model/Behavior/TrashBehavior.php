@@ -234,12 +234,12 @@ class TrashBehavior extends Behavior
 
     /**
      * Deletes all rows marked as `trashed`.
-     *
+     * @param mixed $conditions Conditions to be used for permanently delete
      * @return int
      */
-    public function emptyTrash()
+    public function emptyTrash($conditions = null)
     {
-        return $this->_table->deleteAll($this->_getUnaryExpression());
+        return $this->_table->deleteAll(empty($conditions) ? $this->_getUnaryExpression() : $conditions);
     }
 
     /**

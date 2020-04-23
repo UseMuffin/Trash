@@ -1,6 +1,7 @@
 <?php
 namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
+use Cake\Collection\Collection;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\EntityInterface;
@@ -322,6 +323,13 @@ class TrashBehaviorTest extends TestCase
         $this->Articles->emptyTrash();
 
         $this->assertCount(1, $this->Articles->find());
+    }
+
+    public function testEmptyTrashWithConditions() {
+        $trashed = (new Collection($this->Articles->find('onlyTrashed')))->extract('id')->toArray();
+        $this->Articles->emptyTrash(['id IN'=>$trashed]);
+
+        $this->assertCount(1, $this->Articles->find('withTrashed'));
     }
 
     /**
