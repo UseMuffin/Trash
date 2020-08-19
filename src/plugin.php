@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Muffin\Trash;
 
@@ -29,11 +30,11 @@ class Plugin extends BasePlugin
      * @var bool
      */
     protected $consoleEnabled = false;
-    
+
     /**
      * Disable console hook.
      *
      * @var bool
      */
     protected $bootstrapEnabled = false;
-  }
+}
