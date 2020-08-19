@@ -2,7 +2,6 @@ language: php
 
 php:
   - 7.2
-  - 7.3
   - 7.4
 
 services:
@@ -11,9 +10,9 @@ services:
 
 env:
   matrix:
-    - DB=mysql db_dsn='mysql://root@127.0.0.1/cakephp_test'
-    - DB=pgsql db_dsn='postgres://postgres@127.0.0.1/cakephp_test'
-    - DB=sqlite db_dsn='sqlite:///:memory:'
+    - DB=mysql DB_URL='mysql://root@127.0.0.1/cakephp_test'
+    - DB=pgsql DB_URL='postgres://postgres@127.0.0.1/cakephp_test'
+    - DB=sqlite DB_URL='sqlite:///:memory:'
 
   global:
     - DEFAULT=1
