@@ -21,7 +21,6 @@ use RuntimeException;
 
 /**
  * Trash Behavior.
- *
  */
 class TrashBehavior extends Behavior
 {
@@ -292,7 +291,10 @@ class TrashBehavior extends Behavior
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
 
                     foreach ($association->find('withTrashed')->where($conditions) as $related) {
-                        if (!$association->getTarget()->cascadingRestoreTrash($related, ['_primary' => false] + $options)) {
+                        if (
+                            !$association->getTarget()
+                            ->cascadingRestoreTrash($related, ['_primary' => false] + $options)
+                        ) {
                             $result = false;
                         }
                     }
