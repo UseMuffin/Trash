@@ -6,7 +6,7 @@ namespace Muffin\Trash\Model\Behavior;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Database\Expression\BetweenExpression;
-use Cake\Database\Expression\Comparison;
+use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
 use Cake\Datasource\EntityInterface;
@@ -181,7 +181,7 @@ class TrashBehavior extends Behavior
             }
 
             if (
-                ($expression instanceof Comparison || $expression instanceof BetweenExpression)
+                ($expression instanceof ComparisonExpression || $expression instanceof BetweenExpression)
                 && $expression->getField() === $field
             ) {
                 $addCondition = false;
