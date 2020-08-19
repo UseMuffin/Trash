@@ -292,8 +292,9 @@ class TrashBehavior extends Behavior
 
                     foreach ($association->find('withTrashed')->where($conditions) as $related) {
                         if (
-                            !$association->getTarget()
-                            ->cascadingRestoreTrash($related, ['_primary' => false] + $options)
+                            !$association
+                                ->getTarget()
+                                ->cascadingRestoreTrash($related, ['_primary' => false] + $options)
                         ) {
                             $result = false;
                         }
