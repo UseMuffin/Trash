@@ -16,7 +16,7 @@ class CompositeArticlesUsersFixture extends TestFixture
         'article_id' => ['type' => 'integer'],
         'user_id' => ['type' => 'integer'],
         'trashed' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['article_id', 'user_id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['article_id', 'user_id']]],
     ];
 
     /**

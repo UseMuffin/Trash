@@ -6,3 +6,4 @@
 phpunit.xml.dist export-ignore
 .travis.yml export-ignore
 tests export-ignore
+.github export-ignore

@@ -16,7 +16,7 @@ class UsersFixture extends TestFixture
         'id' => ['type' => 'integer'],
         'name' => ['type' => 'string', 'null' => false],
         'created' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]]
+        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     /**
@@ -28,7 +28,7 @@ class UsersFixture extends TestFixture
         ['name' => 'Dummy'],
     ];
 
-    public function init()
+    public function init(): void
     {
         $created = date('Y-m-d H:i:s');
         array_walk($this->records, function (&$record) use ($created) {

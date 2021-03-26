@@ -1,24 +1,26 @@
 <?php
+declare(strict_types=1);
+
 namespace Muffin\Trash\Model\Behavior;
 
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Database\Expression\BetweenExpression;
-use Cake\Database\Expression\Comparison;
+use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
 use Cake\I18n\Time;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
  * Trash Behavior.
- *
  */
 class TrashBehavior extends Behavior
 {
@@ -46,7 +48,7 @@ class TrashBehavior extends Behavior
      * @param array $config The config for this behavior.
      * @return void
      */
-    public function initialize(array $config)
+    public function initialize(array $config): void
     {
         if (!empty($config['events'])) {
             $this->setConfig('events', $config['events'], false);
@@ -59,7 +61,7 @@ class TrashBehavior extends Behavior
      * @return array
      * @throws \InvalidArgumentException When events are configured in an invalid format.
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         $events = [];
         if ($this->getConfig('events') === false) {
@@ -74,11 +76,11 @@ class TrashBehavior extends Behavior
                 $event = ['callable' => $event];
             }
             if (!is_array($event)) {
-                throw new \InvalidArgumentException('Event should be string or array');
+                throw new InvalidArgumentException('Event should be string or array');
             }
             $priority = $this->getConfig('priority');
             if (!array_key_exists('callable', $event) || $event['callable'] === null) {
-                list(, $event['callable']) = pluginSplit($eventKey);
+                [, $event['callable']] = pluginSplit($eventKey);
             }
             if ($priority && !array_key_exists('priority', $event)) {
                 $event['priority'] = $priority;
@@ -98,7 +100,7 @@ class TrashBehavior extends Behavior
      * @return true
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
-    public function beforeDelete(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!$this->trash($entity, $options->getArrayCopy())) {
             throw new RuntimeException();
@@ -124,7 +126,7 @@ class TrashBehavior extends Behavior
      * @return bool
      * @throws \RuntimeException if no primary key is set on entity.
      */
-    public function trash(EntityInterface $entity, array $options = [])
+    public function trash(EntityInterface $entity, array $options = []): bool
     {
         $primaryKey = (array)$this->_table->getPrimaryKey();
 
@@ -159,7 +161,7 @@ class TrashBehavior extends Behavior
      * @param bool $primary Primary or associated table being queries.
      * @return void
      */
-    public function beforeFind(Event $event, Query $query, ArrayObject $options, $primary)
+    public function beforeFind(EventInterface $event, Query $query, ArrayObject $options, $primary)
     {
         $field = $this->getTrashField();
         $addCondition = true;
@@ -169,7 +171,8 @@ class TrashBehavior extends Behavior
                 return;
             }
 
-            if ($expression instanceof IdentifierExpression
+            if (
+                $expression instanceof IdentifierExpression
                 && $expression->getIdentifier() === $field
             ) {
                 $addCondition = false;
@@ -177,7 +180,8 @@ class TrashBehavior extends Behavior
                 return;
             }
 
-            if (($expression instanceof Comparison || $expression instanceof BetweenExpression)
+            if (
+                ($expression instanceof ComparisonExpression || $expression instanceof BetweenExpression)
                 && $expression->getField() === $field
             ) {
                 $addCondition = false;
@@ -198,7 +202,7 @@ class TrashBehavior extends Behavior
      * @param array $options Options.
      * @return \Cake\ORM\Query
      */
-    public function findOnlyTrashed(Query $query, array $options)
+    public function findOnlyTrashed(Query $query, array $options): Query
     {
         return $query->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
     }
@@ -210,10 +214,10 @@ class TrashBehavior extends Behavior
      * @param array $options Options.
      * @return \Cake\ORM\Query
      */
-    public function findWithTrashed(Query $query, array $options)
+    public function findWithTrashed(Query $query, array $options): Query
     {
         return $query->applyOptions([
-            'skipAddTrashCondition' => true
+            'skipAddTrashCondition' => true,
         ]);
     }
 
@@ -224,7 +228,7 @@ class TrashBehavior extends Behavior
      * can take.
      * @return int Count Returns the affected rows.
      */
-    public function trashAll($conditions)
+    public function trashAll($conditions): int
     {
         return $this->_table->updateAll(
             [$this->getTrashField(false) => new Time()],
@@ -237,7 +241,7 @@ class TrashBehavior extends Behavior
      *
      * @return int
      */
-    public function emptyTrash()
+    public function emptyTrash(): int
     {
         return $this->_table->deleteAll($this->_getUnaryExpression());
     }
@@ -249,7 +253,7 @@ class TrashBehavior extends Behavior
      * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return bool|\Cake\Datasource\EntityInterface|int|mixed
      */
-    public function restoreTrash(EntityInterface $entity = null, array $options = [])
+    public function restoreTrash(?EntityInterface $entity = null, array $options = [])
     {
         $data = [$this->getTrashField(false) => null];
 
@@ -272,10 +276,11 @@ class TrashBehavior extends Behavior
      * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return bool|\Cake\Datasource\EntityInterface|int
      */
-    public function cascadingRestoreTrash(EntityInterface $entity = null, array $options = [])
+    public function cascadingRestoreTrash(?EntityInterface $entity = null, array $options = [])
     {
         $result = $this->restoreTrash($entity, $options);
 
+        /** @var \Cake\ORM\Association $association */
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
@@ -286,7 +291,11 @@ class TrashBehavior extends Behavior
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
 
                     foreach ($association->find('withTrashed')->where($conditions) as $related) {
-                        if (!$association->getTarget()->cascadingRestoreTrash($related, ['_primary' => false] + $options)) {
+                        if (
+                            !$association
+                                ->getTarget()
+                                ->cascadingRestoreTrash($related, ['_primary' => false] + $options)
+                        ) {
                             $result = false;
                         }
                     }
@@ -317,7 +326,7 @@ class TrashBehavior extends Behavior
      * @param bool $aliased Should field be aliased or not. Default true.
      * @return string
      */
-    public function getTrashField($aliased = true)
+    public function getTrashField(bool $aliased = true): string
     {
         $field = $this->getConfig('field');
 
@@ -330,6 +339,7 @@ class TrashBehavior extends Behavior
                 }
             }
 
+            /** @psalm-suppress RedundantCondition */
             if (empty($field)) {
                 $field = Configure::read('Muffin/Trash.field');
             }
@@ -355,9 +365,10 @@ class TrashBehavior extends Behavior
      * @param \Cake\ORM\Table $table The table instance to check
      * @return bool
      */
-    protected function _isRecursable(Association $association, Table $table)
+    protected function _isRecursable(Association $association, Table $table): bool
     {
-        if ($association->getTarget()->hasBehavior('Trash')
+        if (
+            $association->getTarget()->hasBehavior('Trash')
             && $association->isOwningSide($table)
             && $association->getDependent()
             && $association->getCascadeCallbacks()
