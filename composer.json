@@ -52,5 +52,10 @@
         "psr-4": {
             "Muffin\\Trash\\Test\\": "tests"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
