@@ -14,13 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.4', '8.0']
+        php-version: ['7.4', '8.0', '8.1']
         db-type: ['mysql', 'pgsql']
-        prefer-lowest: ['']
+        dependencies: ['locked']
         include:
           - php-version: '7.2'
             db-type: 'sqlite'
-            prefer-lowest: 'prefer-lowest'
+            dependencies: 'lowest'
 
     services:
       postgres:
@@ -46,14 +46,9 @@ jobs:
         extensions: mbstring, intl, pdo_${{ matrix.db-type }}
         coverage: pcov
 
-    - name: Composer install
-      run: |
-        composer --version
-        if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then
-          composer update --prefer-lowest --prefer-stable
-        else
-          composer install
-        fi
+    - uses: ramsey/composer-install@v2
+      with:
+        dependency-versions: ${{ matrix.dependencies }}
 
     - name: Run PHPUnit
       run: |
@@ -69,7 +64,7 @@ jobs:
 
     - name: Code Coverage Report
       if: success() && matrix.php-version == '7.4' && matrix.db-type == 'mysql'
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
 
   cs-stan:
     name: Coding Standard & Static Analysis
@@ -84,7 +79,7 @@ jobs:
         php-version: '7.4'
         extensions: mbstring, intl
         coverage: none
-        tools: psalm:^4.6, phpstan:^0.12
+        tools: vimeo/psalm:4, phpstan:1
 
     - name: Composer Install
       run: composer require cakephp/cakephp-codesniffer:^4.2

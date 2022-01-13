@@ -31,7 +31,7 @@ class TrashBehavior extends Behavior
      * - priority: the default priority for events
      * - events: the list of events to enable (also accepts arrays in `implementedEvents()`-compatible format)
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $_defaultConfig = [
         'field' => null,
@@ -58,7 +58,7 @@ class TrashBehavior extends Behavior
     /**
      * Return list of events this behavior is interested in.
      *
-     * @return array
+     * @return array<string, mixed>
      * @throws \InvalidArgumentException When events are configured in an invalid format.
      */
     public function implementedEvents(): array
