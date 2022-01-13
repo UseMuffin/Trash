@@ -11,7 +11,7 @@ use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
-use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
 use Cake\ORM\Query;
@@ -142,7 +142,7 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $data = [$this->getTrashField(false) => new Time()];
+        $data = [$this->getTrashField(false) => new FrozenTime()];
         $entity->set($data, ['guard' => false]);
 
         if ($this->_table->save($entity, $options)) {
@@ -231,7 +231,7 @@ class TrashBehavior extends Behavior
     public function trashAll($conditions): int
     {
         return $this->_table->updateAll(
-            [$this->getTrashField(false) => new Time()],
+            [$this->getTrashField(false) => new FrozenTime()],
             $conditions
         );
     }
