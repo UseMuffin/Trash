@@ -368,7 +368,7 @@ class TrashBehavior extends Behavior
     protected function _isRecursable(Association $association, Table $table): bool
     {
         if (
-            $association->getTarget()->hasBehavior('Trash')
+            ($association->getTarget()->hasBehavior('Trash') || $association->getTarget()->hasBehavior(static::class))
             && $association->isOwningSide($table)
             && $association->getDependent()
             && $association->getCascadeCallbacks()
