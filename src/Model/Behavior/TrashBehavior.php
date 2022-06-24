@@ -103,7 +103,7 @@ class TrashBehavior extends Behavior
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!$this->trash($entity, $options->getArrayCopy())) {
-            throw new RuntimeException();
+            return false;
         }
 
         $event->stopPropagation();
