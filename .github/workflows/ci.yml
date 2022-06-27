@@ -79,13 +79,13 @@ jobs:
         php-version: '7.4'
         extensions: mbstring, intl
         coverage: none
-        tools: vimeo/psalm:4, phpstan:1
+        tools: vimeo/psalm:4, phpstan:1, cs2pr
 
     - name: Composer Install
       run: composer require cakephp/cakephp-codesniffer:^4.2
 
     - name: Run phpcs
-      run: vendor/bin/phpcs --standard=CakePHP src/ tests/
+      run: vendor/bin/phpcs --report=checkstyle --standard=CakePHP src/ tests/ | cs2pr
 
     - name: Run psalm
       if: success() || failure()

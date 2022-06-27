@@ -11,7 +11,6 @@ use Cake\Event\Event;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
