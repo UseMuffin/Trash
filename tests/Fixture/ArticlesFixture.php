@@ -1,7 +1,7 @@
 <?php
 namespace Muffin\Trash\Test\Fixture;
 
-use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
 use Cake\TestSuite\Fixture\TestFixture;
 
 class ArticlesFixture extends TestFixture
@@ -38,7 +38,7 @@ class ArticlesFixture extends TestFixture
 
     public function init(): void
     {
-        $created = $modified = new Time();
+        $created = $modified = new FrozenTime();
         array_walk($this->records, function (&$record) use ($created, $modified) {
             $record += compact('created', 'modified');
         });

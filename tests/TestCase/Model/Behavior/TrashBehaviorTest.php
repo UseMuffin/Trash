@@ -50,7 +50,7 @@ class TrashBehaviorTest extends TestCase
     {
         parent::setUp();
 
-        $this->Users = TableRegistry::get('Muffin/Trash.Users', ['table' => 'trash_users']);
+        $this->Users = $this->getTableLocator()->get('Muffin/Trash.Users', ['table' => 'trash_users']);
         $this->Users->belongsToMany('Articles', [
             'className' => 'Muffin/Trash.Articles',
             'joinTable' => 'trash_articles_users',
@@ -58,13 +58,13 @@ class TrashBehaviorTest extends TestCase
             'targetForeignKey' => 'article_id',
         ]);
 
-        $this->CompositeArticlesUsers = TableRegistry::get(
+        $this->CompositeArticlesUsers = $this->getTableLocator()->get(
             'Muffin/Trash.CompositeArticlesUsers',
             ['table' => 'trash_composite_articles_users']
         );
         $this->CompositeArticlesUsers->addBehavior('Muffin/Trash.Trash');
 
-        $this->Comments = TableRegistry::get('Muffin/Trash.Comments', ['table' => 'trash_comments']);
+        $this->Comments = $this->getTableLocator()->get('Muffin/Trash.Comments', ['table' => 'trash_comments']);
         $this->Comments->belongsTo('Articles', [
             'className' => 'Muffin/Trash.Articles',
             'foreignKey' => 'article_id',
@@ -75,7 +75,7 @@ class TrashBehaviorTest extends TestCase
         ]]);
         $this->Comments->addBehavior('Muffin/Trash.Trash');
 
-        $this->Articles = TableRegistry::get('Muffin/Trash.Articles', ['table' => 'trash_articles']);
+        $this->Articles = $this->getTableLocator()->get('Muffin/Trash.Articles', ['table' => 'trash_articles']);
         $this->Articles->addBehavior('Muffin/Trash.Trash');
         $this->Articles->hasMany('Comments', [
             'className' => 'Muffin/Trash.Comments',
@@ -104,7 +104,8 @@ class TrashBehaviorTest extends TestCase
     public function tearDown(): void
     {
         parent::tearDown();
-        TableRegistry::clear();
+
+        $this->getTableLocator()->clear();
         unset($this->Users, $this->Comments, $this->Articles, $this->Behavior);
     }
 
