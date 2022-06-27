@@ -36,7 +36,7 @@
     },
     "require-dev": {
         "cakephp/cakephp": "^4.1",
-        "phpunit/phpunit": "~8.5.0",
+        "phpunit/phpunit": "^8.5.0 || ^9.3",
         "cakephp/cakephp-codesniffer": "^4.0"
     },
     "scripts": {
