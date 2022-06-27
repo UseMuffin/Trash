@@ -175,7 +175,7 @@ class TrashBehaviorTest extends TestCase
         $this->Articles->getEventManager()->on(
             'Model.beforeSave',
             [],
-            function (Event $event, EntityInterface $entity, ArrayObject $options) use (&$hasDeleteOptionsBefore) {
+            function (Event $event, EntityInterface $entity, ArrayObject $options) {
                 $entity->setError('id', 'Save aborted');
                 $event->setResult(false);
                 $event->stopPropagation();
