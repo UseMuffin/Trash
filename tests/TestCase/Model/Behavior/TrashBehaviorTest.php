@@ -180,7 +180,6 @@ class TrashBehaviorTest extends TestCase
                 $event->setResult(false);
                 $event->stopPropagation();
             }
-
         );
 
         $result = $this->Articles->delete($article);
