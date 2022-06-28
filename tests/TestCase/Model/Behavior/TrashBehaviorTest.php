@@ -163,6 +163,31 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Test the beforeDelete callback.
+     *
+     * @return void
+     */
+    public function testBeforeDeleteAbort()
+    {
+        $article = $this->Articles->get(1);
+
+        $this->Articles->getEventManager()->on(
+            'Model.beforeSave',
+            [],
+            function (Event $event, EntityInterface $entity, ArrayObject $options) {
+                $entity->setError('id', 'Save aborted');
+                $event->setResult(false);
+                $event->stopPropagation();
+            }
+        );
+
+        $result = $this->Articles->delete($article);
+
+        $this->assertFalse($result);
+        $this->assertArrayHasKey('id', $article->getErrors());
+    }
+
+    /**
      * Tests that the options passed to the `delete()` method are being passed on into
      * the cascading delete process.
      *

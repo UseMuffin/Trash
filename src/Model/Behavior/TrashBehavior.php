@@ -97,13 +97,13 @@ class TrashBehavior extends Behavior
      * @param \Cake\Event\Event $event The beforeDelete event that was fired.
      * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted.
      * @param \ArrayObject $options Options.
-     * @return true
+     * @return bool
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!$this->trash($entity, $options->getArrayCopy())) {
-            throw new RuntimeException();
+            return false;
         }
 
         $event->stopPropagation();
