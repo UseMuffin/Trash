@@ -188,6 +188,20 @@ class TrashBehaviorTest extends TestCase
     }
 
     /**
+     * Test the beforeDelete callback with the purge option
+     *
+     * @return void
+     */
+    public function testBeforeDeletePurge()
+    {
+        $article = $this->Articles->get(1);
+        $result = $this->Articles->delete($article, ['purge' => true]);
+
+        $this->assertTrue($result);
+        $this->assertCount(2, $this->Articles->find('withTrashed'));
+    }
+
+    /**
      * Tests that the options passed to the `delete()` method are being passed on into
      * the cascading delete process.
      *
