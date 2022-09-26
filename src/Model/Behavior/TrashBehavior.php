@@ -102,6 +102,10 @@ class TrashBehavior extends Behavior
      */
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
+        if ($options->offsetExists('purge') && $options['purge'] === true) {
+            return true;
+        }
+
         if (!$this->trash($entity, $options->getArrayCopy())) {
             return false;
         }
