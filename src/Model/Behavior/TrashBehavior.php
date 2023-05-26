@@ -8,11 +8,12 @@ use Cake\Core\Configure;
 use Cake\Database\Expression\BetweenExpression;
 use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Database\Expression\UnaryExpression;
 use Cake\Database\Query\SelectQuery;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
-use Cake\I18n\Time;
+use Cake\I18n\DateTime;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
 use Cake\ORM\Table;
@@ -146,7 +147,7 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $data = [$this->getTrashField(false) => new Time()];
+        $data = [$this->getTrashField(false) => new DateTime()];
         $entity->set($data, ['guard' => false]);
 
         if ($this->_table->save($entity, $options)) {
@@ -218,7 +219,7 @@ class TrashBehavior extends Behavior
      * @param array $options Options.
      * @return \Cake\ORM\Query\SelectQuery
      */
-    public function findWithTrashed(SelectQuery $query, array $options): SelectQuery
+    public function findWithTrashed(SelectQuery $query, array $options = []): SelectQuery
     {
         return $query->applyOptions([
             'skipAddTrashCondition' => true,
@@ -235,7 +236,7 @@ class TrashBehavior extends Behavior
     public function trashAll($conditions): int
     {
         return $this->_table->updateAll(
-            [$this->getTrashField(false) => new Time()],
+            [$this->getTrashField(false) => new DateTime()],
             $conditions
         );
     }
@@ -313,15 +314,16 @@ class TrashBehavior extends Behavior
     /**
      * Returns a unary expression for bulk record manipulation.
      *
-     * @return \Cake\Database\Expression\UnaryExpression
+     * @return \Closure
      */
-    protected function _getUnaryExpression()
+    protected function _getUnaryExpression(): \Closure
     {
-        return new UnaryExpression(
-            'IS NOT NULL',
-            $this->getTrashField(false),
-            UnaryExpression::POSTFIX
-        );
+        return fn(QueryExpression $queryExpression): QueryExpression => $queryExpression
+            ->add(new UnaryExpression(
+                'IS NOT NULL',
+                $this->getTrashField(false),
+                UnaryExpression::POSTFIX
+            ));
     }
 
     /**
