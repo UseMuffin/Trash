@@ -31,13 +31,13 @@
         "source": "https://github.com/usemuffin/trash"
     },
     "require": {
-        "php": ">=7.2",
-        "cakephp/orm": "^4.1"
+        "php": ">=8.1",
+        "cakephp/orm": "5.x-dev as 5.0.0"
     },
     "require-dev": {
-        "cakephp/cakephp": "^4.1",
-        "phpunit/phpunit": "^8.5.0 || ^9.3",
-        "cakephp/cakephp-codesniffer": "^4.0"
+        "cakephp/cakephp": "5.x-dev as 5.0.0",
+        "phpunit/phpunit": "^9.6",
+        "cakephp/cakephp-codesniffer": "^5.0"
     },
     "scripts": {
         "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
@@ -53,6 +53,8 @@
             "Muffin\\Trash\\Test\\": "tests"
         }
     },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true

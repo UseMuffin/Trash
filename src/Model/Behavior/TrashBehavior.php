@@ -9,12 +9,12 @@ use Cake\Database\Expression\BetweenExpression;
 use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\UnaryExpression;
+use Cake\Database\Query\SelectQuery;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\Time;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
-use Cake\ORM\Query;
 use Cake\ORM\Table;
 use InvalidArgumentException;
 use RuntimeException;
@@ -33,7 +33,7 @@ class TrashBehavior extends Behavior
      *
      * @var array<string, mixed>
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'field' => null,
         'priority' => null,
         'events' => [
@@ -146,7 +146,7 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $data = [$this->getTrashField(false) => new FrozenTime()];
+        $data = [$this->getTrashField(false) => new Time()];
         $entity->set($data, ['guard' => false]);
 
         if ($this->_table->save($entity, $options)) {
@@ -160,12 +160,12 @@ class TrashBehavior extends Behavior
      * Callback to always return rows that have not been `trashed`.
      *
      * @param \Cake\Event\Event $event Event.
-     * @param \Cake\ORM\Query $query Query.
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param \ArrayObject $options Options.
      * @param bool $primary Primary or associated table being queries.
      * @return void
      */
-    public function beforeFind(EventInterface $event, Query $query, ArrayObject $options, $primary)
+    public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, $primary)
     {
         $field = $this->getTrashField();
         $addCondition = true;
@@ -202,11 +202,11 @@ class TrashBehavior extends Behavior
     /**
      * Custom finder to get only the `trashed` rows.
      *
-     * @param \Cake\ORM\Query $query Query.
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param array $options Options.
-     * @return \Cake\ORM\Query
+     * @return \Cake\ORM\Query\SelectQuery
      */
-    public function findOnlyTrashed(Query $query, array $options): Query
+    public function findOnlyTrashed(SelectQuery $query, array $options): SelectQuery
     {
         return $query->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
     }
@@ -214,11 +214,11 @@ class TrashBehavior extends Behavior
     /**
      * Custom finder to get all rows (`trashed` or not).
      *
-     * @param \Cake\ORM\Query $query Query.
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param array $options Options.
-     * @return \Cake\ORM\Query
+     * @return \Cake\ORM\Query\SelectQuery
      */
-    public function findWithTrashed(Query $query, array $options): Query
+    public function findWithTrashed(SelectQuery $query, array $options): SelectQuery
     {
         return $query->applyOptions([
             'skipAddTrashCondition' => true,
@@ -235,7 +235,7 @@ class TrashBehavior extends Behavior
     public function trashAll($conditions): int
     {
         return $this->_table->updateAll(
-            [$this->getTrashField(false) => new FrozenTime()],
+            [$this->getTrashField(false) => new Time()],
             $conditions
         );
     }
