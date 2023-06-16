@@ -885,7 +885,7 @@ class TrashBehaviorTest extends TestCase
      *
      * @return array
      */
-    public function provideConfigsForImplementedEventsTest()
+    public static function provideConfigsForImplementedEventsTest()
     {
         return [
             'No event config inherits default events' => [
@@ -950,7 +950,7 @@ class TrashBehaviorTest extends TestCase
                             },
                         ],
                         'Model.beforeFind' => [
-                            'callable' => [$this, 'beforeDelete'],
+                            'callable' => ['', 'beforeDelete'],
                             'passParams' => true,
                         ],
                     ],
@@ -961,7 +961,7 @@ class TrashBehaviorTest extends TestCase
                         },
                     ],
                     'Model.beforeFind' => [
-                        'callable' => [$this, 'beforeDelete'],
+                        'callable' => ['', 'beforeDelete'],
                         'passParams' => true,
                     ],
                 ],

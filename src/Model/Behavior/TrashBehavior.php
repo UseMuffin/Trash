@@ -17,6 +17,7 @@ use Cake\I18n\DateTime;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
 use Cake\ORM\Table;
+use Closure;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -101,7 +102,7 @@ class TrashBehavior extends Behavior
      * @return bool
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
-    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options): bool
     {
         if ($options->offsetExists('purge') && $options['purge'] === true) {
             return true;
@@ -166,7 +167,7 @@ class TrashBehavior extends Behavior
      * @param bool $primary Primary or associated table being queries.
      * @return void
      */
-    public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, $primary)
+    public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
         $field = $this->getTrashField();
         $addCondition = true;
@@ -233,7 +234,7 @@ class TrashBehavior extends Behavior
      * can take.
      * @return int Count Returns the affected rows.
      */
-    public function trashAll($conditions): int
+    public function trashAll(mixed $conditions): int
     {
         return $this->_table->updateAll(
             [$this->getTrashField(false) => new DateTime()],
@@ -256,7 +257,7 @@ class TrashBehavior extends Behavior
      *
      * @param \Cake\Datasource\EntityInterface|null $entity to restore.
      * @param array $options Restore operation options (only applies when restoring a specific entity).
-     * @return bool|\Cake\Datasource\EntityInterface|int|mixed
+     * @return \Cake\Datasource\EntityInterface|false|int
      */
     public function restoreTrash(?EntityInterface $entity = null, array $options = [])
     {
@@ -277,7 +278,7 @@ class TrashBehavior extends Behavior
     /**
      * Restore an item from trashed status and all its related data
      *
-     * @param \Cake\Datasource\EntityInterface $entity Entity instance
+     * @param \Cake\Datasource\EntityInterface|null $entity Entity instance
      * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return bool|\Cake\Datasource\EntityInterface|int
      */
@@ -316,7 +317,7 @@ class TrashBehavior extends Behavior
      *
      * @return \Closure
      */
-    protected function _getUnaryExpression(): \Closure
+    protected function _getUnaryExpression(): Closure
     {
         return fn(QueryExpression $queryExpression): QueryExpression => $queryExpression
             ->add(new UnaryExpression(
