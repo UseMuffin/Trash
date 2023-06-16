@@ -10,11 +10,11 @@ on:
 
 jobs:
   testsuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.4', '8.0', '8.1']
+        php-version: ['7.4', '8.0', '8.1', '8.2']
         db-type: ['mysql', 'pgsql']
         dependencies: ['locked']
         include:
@@ -31,7 +31,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup Service
       if: matrix.db-type == 'mysql'
@@ -64,14 +64,14 @@ jobs:
 
     - name: Code Coverage Report
       if: success() && matrix.php-version == '7.4' && matrix.db-type == 'mysql'
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
 
   cs-stan:
     name: Coding Standard & Static Analysis
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
