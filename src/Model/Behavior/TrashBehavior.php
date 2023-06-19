@@ -173,7 +173,7 @@ class TrashBehavior extends Behavior
         $field = $this->getTrashField();
         $addCondition = true;
 
-        $query->traverseExpressions(function ($expression) use (&$addCondition, $field) {
+        $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
             if (!$addCondition) {
                 return;
             }
@@ -260,7 +260,7 @@ class TrashBehavior extends Behavior
      * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return \Cake\Datasource\EntityInterface|false|int
      */
-    public function restoreTrash(?EntityInterface $entity = null, array $options = [])
+    public function restoreTrash(?EntityInterface $entity = null, array $options = []): bool|int|EntityInterface
     {
         $data = [$this->getTrashField(false) => null];
 
@@ -283,7 +283,7 @@ class TrashBehavior extends Behavior
      * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return bool|\Cake\Datasource\EntityInterface|int
      */
-    public function cascadingRestoreTrash(?EntityInterface $entity = null, array $options = [])
+    public function cascadingRestoreTrash(?EntityInterface $entity = null, array $options = []): bool|int|EntityInterface
     {
         $result = $this->restoreTrash($entity, $options);
 
@@ -291,8 +291,11 @@ class TrashBehavior extends Behavior
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
-                    $result += $association->getTarget()->cascadingRestoreTrash(null, $options);
+                    if ($result) {
+                        $result += $association->getTarget()->cascadingRestoreTrash(null, $options);
+                    }
                 } else {
+                    /** @var array<array-key,array-key> $foreignKey */
                     $foreignKey = (array)$association->getForeignKey();
                     $bindingKey = (array)$association->getBindingKey();
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
@@ -320,7 +323,7 @@ class TrashBehavior extends Behavior
      */
     protected function _getUnaryExpression(): Closure
     {
-        return fn(QueryExpression $queryExpression): QueryExpression => $queryExpression
+        return fn (QueryExpression $queryExpression): QueryExpression => $queryExpression
             ->add(new UnaryExpression(
                 'IS NOT NULL',
                 $this->getTrashField(false),
