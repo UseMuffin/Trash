@@ -25,7 +25,7 @@ $root = $findRoot(__FILE__);
 unset($findRoot);
 
 chdir($root);
-require $root . '/vendor/cakephp/cakephp/src/functions.php';
+
 if (file_exists($root . '/config/bootstrap.php')) {
     require $root . '/config/bootstrap.php';
 }

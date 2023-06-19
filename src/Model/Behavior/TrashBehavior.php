@@ -20,6 +20,7 @@ use Cake\ORM\Table;
 use Closure;
 use InvalidArgumentException;
 use RuntimeException;
+use function Cake\Core\pluginSplit;
 
 /**
  * Trash Behavior.
