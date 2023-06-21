@@ -258,7 +258,7 @@ class TrashBehavior extends Behavior
      *
      * @param \Cake\Datasource\EntityInterface|null $entity to restore.
      * @param array $options Restore operation options (only applies when restoring a specific entity).
-     * @return \Cake\Datasource\EntityInterface|false|int
+     * @return \Cake\Datasource\EntityInterface|int|false
      */
     public function restoreTrash(?EntityInterface $entity = null, array $options = []): bool|int|EntityInterface
     {
@@ -281,10 +281,12 @@ class TrashBehavior extends Behavior
      *
      * @param \Cake\Datasource\EntityInterface|null $entity Entity instance
      * @param array $options Restore operation options (only applies when restoring a specific entity).
-     * @return bool|\Cake\Datasource\EntityInterface|int
+     * @return \Cake\Datasource\EntityInterface|int|bool
      */
-    public function cascadingRestoreTrash(?EntityInterface $entity = null, array $options = []): bool|int|EntityInterface
-    {
+    public function cascadingRestoreTrash(
+        ?EntityInterface $entity = null,
+        array $options = []
+    ): bool|int|EntityInterface {
         $result = $this->restoreTrash($entity, $options);
 
         /** @var \Cake\ORM\Association $association */
