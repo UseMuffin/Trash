@@ -5,6 +5,7 @@ namespace Muffin\Trash\Test\TestCase\Model\Behavior;
 
 use ArrayObject;
 use Cake\Core\Configure;
+use Cake\Core\Exception\CakeException;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
@@ -14,7 +15,6 @@ use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
-use RuntimeException;
 
 /**
  * @property \Cake\ORM\Table Users
@@ -333,7 +333,7 @@ class TrashBehaviorTest extends TestCase
     {
         $article = $this->Articles->get(1);
         $article->unset('id');
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CakeException::class);
         $this->Articles->trash($article);
     }
 
@@ -406,7 +406,7 @@ class TrashBehaviorTest extends TestCase
         $entity = $this->Articles->find('onlyTrashed')->first();
         $entity->setDirty('title');
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(CakeException::class);
         $this->Articles->restoreTrash($entity);
     }
 
@@ -803,7 +803,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testGetTrashFieldException()
     {
-        $this->expectException('RuntimeException');
+        $this->expectException(CakeException::class);
         $trash = new TrashBehavior($this->Users);
         $trash->getTrashField();
     }

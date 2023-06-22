@@ -5,6 +5,7 @@ namespace Muffin\Trash\Model\Behavior;
 
 use ArrayObject;
 use Cake\Core\Configure;
+use Cake\Core\Exception\CakeException;
 use Cake\Database\Expression\BetweenExpression;
 use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
@@ -19,7 +20,6 @@ use Cake\ORM\Behavior;
 use Cake\ORM\Table;
 use Closure;
 use InvalidArgumentException;
-use RuntimeException;
 use function Cake\Core\pluginSplit;
 
 /**
@@ -101,7 +101,7 @@ class TrashBehavior extends Behavior
      * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted.
      * @param \ArrayObject $options Options.
      * @return void
-     * @throws \RuntimeException if fails to mark entity as `trashed`.
+     * @throws \Cake\Core\Exception\CakeException if fails to mark entity as `trashed`.
      */
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
@@ -133,7 +133,7 @@ class TrashBehavior extends Behavior
      * @param \Cake\Datasource\EntityInterface $entity EntityInterface.
      * @param array $options Trash operation options.
      * @return bool
-     * @throws \RuntimeException if no primary key is set on entity.
+     * @throws \Cake\Core\Exception\CakeException if no primary key is set on entity.
      */
     public function trash(EntityInterface $entity, array $options = []): bool
     {
@@ -141,7 +141,7 @@ class TrashBehavior extends Behavior
 
         foreach ($primaryKey as $field) {
             if (!$entity->has($field)) {
-                throw new RuntimeException();
+                throw new CakeException('Primay key value has not been set');
             }
         }
 
@@ -268,7 +268,7 @@ class TrashBehavior extends Behavior
 
         if ($entity instanceof EntityInterface) {
             if ($entity->isDirty()) {
-                throw new RuntimeException('Can not restore from a dirty entity.');
+                throw new CakeException('Can not restore from a dirty entity.');
             }
             $entity->set($data, ['guard' => false]);
 
@@ -360,7 +360,7 @@ class TrashBehavior extends Behavior
             }
 
             if (empty($field)) {
-                throw new RuntimeException('TrashBehavior: "field" config needs to be provided.');
+                throw new CakeException('TrashBehavior: "field" config needs to be provided.');
             }
 
             $this->setConfig('field', $field);
@@ -382,15 +382,12 @@ class TrashBehavior extends Behavior
      */
     protected function _isRecursable(Association $association, Table $table): bool
     {
-        if (
-            ($association->getTarget()->hasBehavior('Trash') || $association->getTarget()->hasBehavior(static::class))
+        return (
+                $association->getTarget()->hasBehavior('Trash')
+                || $association->getTarget()->hasBehavior(static::class)
+            )
             && $association->isOwningSide($table)
             && $association->getDependent()
-            && $association->getCascadeCallbacks()
-        ) {
-            return true;
-        }
-
-        return false;
+            && $association->getCascadeCallbacks();
     }
 }
