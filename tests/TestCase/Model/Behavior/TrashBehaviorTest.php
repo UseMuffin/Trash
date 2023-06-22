@@ -8,7 +8,7 @@ use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
@@ -32,7 +32,7 @@ class TrashBehaviorTest extends TestCase
      *
      * @var array
      */
-    public $fixtures = [
+    public array $fixtures = [
         'plugin.Muffin/Trash.Articles',
         'plugin.Muffin/Trash.Comments',
         'plugin.Muffin/Trash.Users',
@@ -127,8 +127,9 @@ class TrashBehaviorTest extends TestCase
     public function testBeforeFindWithTrashFieldInComparison()
     {
         $query = $this->Articles->find('all');
+
         $result = $query->where(
-            [$this->Articles->aliasField('trashed') . ' >= ' => new FrozenTime('-1 day')]
+            [$this->Articles->aliasField('trashed') . ' >= ' => new DateTime('-1 day')]
         )->toArray();
         $this->assertCount(2, $result);
     }
@@ -143,7 +144,7 @@ class TrashBehaviorTest extends TestCase
         $query = $this->Articles->find('all');
         $trashedField = $this->Articles->aliasField('trashed');
         $result = $query->where(function (QueryExpression $exp) use ($trashedField) {
-            return $exp->between($trashedField, new FrozenTime('-1 day'), new FrozenTime('+1 day'));
+            return $exp->between($trashedField, new DateTime('-1 day'), new DateTime('+1 day'));
         })->toArray();
         $this->assertCount(2, $result);
     }
@@ -443,7 +444,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testFindingRecordWithHasManyAssoc()
     {
-        $result = $this->Articles->get(1, ['contain' => ['Comments']]);
+        $result = $this->Articles->get(primaryKey: 1, contain: ['Comments']);
         $this->assertCount(1, $result->comments);
     }
 
@@ -454,7 +455,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testFindingRecordWithBelongsToManyAssoc()
     {
-        $result = $this->Users->get(1, ['contain' => ['Articles']]);
+        $result = $this->Users->get(primaryKey: 1, contain: ['Articles']);
         $this->assertCount(1, $result->articles);
     }
 
@@ -510,10 +511,10 @@ class TrashBehaviorTest extends TestCase
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->comments[0]->trashed);
     }
 
     public function testCascadingUntrashOptionsArePassedToSave()
@@ -611,13 +612,13 @@ class TrashBehaviorTest extends TestCase
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->comments[0]->trashed);
 
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->composite_articles_users[0]->trashed);
 
         $unrelatedComment = $this->Articles->Comments->getTarget()
             ->findById(3)
@@ -625,7 +626,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $unrelatedComment->trashed);
+        $this->assertInstanceOf(DateTime::class, $unrelatedComment->trashed);
 
         $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()
             ->findByArticleId(3)
@@ -633,7 +634,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $unrelatedArticleUser->trashed);
+        $this->assertInstanceOf(DateTime::class, $unrelatedArticleUser->trashed);
 
         $this->assertInstanceOf(
             EntityInterface::class,
@@ -656,7 +657,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedComment->article_id);
         $this->assertNotEmpty($unrelatedComment->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $unrelatedComment->trashed);
+        $this->assertInstanceOf(DateTime::class, $unrelatedComment->trashed);
 
         $unrelatedArticleUser = $this->Articles->CompositeArticlesUsers->getTarget()
             ->findByArticleId(3)
@@ -664,7 +665,7 @@ class TrashBehaviorTest extends TestCase
             ->first();
         $this->assertNotEquals($article->id, $unrelatedArticleUser->article_id);
         $this->assertNotEmpty($unrelatedArticleUser->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $unrelatedArticleUser->trashed);
+        $this->assertInstanceOf(DateTime::class, $unrelatedArticleUser->trashed);
     }
 
     /**
@@ -705,13 +706,13 @@ class TrashBehaviorTest extends TestCase
             ->first();
 
         $this->assertNotEmpty($article->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->trashed);
 
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->comments[0]->trashed);
 
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->composite_articles_users[0]->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->composite_articles_users[0]->trashed);
 
         $this->assertEquals(8, $this->Articles->cascadingRestoreTrash());
 
@@ -770,9 +771,7 @@ class TrashBehaviorTest extends TestCase
         $association->setCascadeCallbacks(true);
         $association->setSaveStrategy(HasMany::SAVE_REPLACE);
 
-        $article = $this->Articles->get(1, [
-            'contain' => ['Comments'],
-        ]);
+        $article = $this->Articles->get(primaryKey: 1, contain: ['Comments']);
 
         $this->assertEquals(1, $article->comments[0]->id);
         $this->assertEmpty($article->comments[0]->trashed);
@@ -793,7 +792,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->comments);
         $this->assertEquals(1, $article->comments[0]->id);
         $this->assertNotEmpty($article->comments[0]->trashed);
-        $this->assertInstanceOf(FrozenTime::class, $article->comments[0]->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->comments[0]->trashed);
     }
 
     /**
@@ -886,7 +885,7 @@ class TrashBehaviorTest extends TestCase
      *
      * @return array
      */
-    public function provideConfigsForImplementedEventsTest()
+    public static function provideConfigsForImplementedEventsTest()
     {
         return [
             'No event config inherits default events' => [
@@ -951,7 +950,7 @@ class TrashBehaviorTest extends TestCase
                             },
                         ],
                         'Model.beforeFind' => [
-                            'callable' => [$this, 'beforeDelete'],
+                            'callable' => ['', 'beforeDelete'],
                             'passParams' => true,
                         ],
                     ],
@@ -962,7 +961,7 @@ class TrashBehaviorTest extends TestCase
                         },
                     ],
                     'Model.beforeFind' => [
-                        'callable' => [$this, 'beforeDelete'],
+                        'callable' => ['', 'beforeDelete'],
                         'passParams' => true,
                     ],
                 ],

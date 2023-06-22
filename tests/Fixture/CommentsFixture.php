@@ -5,29 +5,14 @@ use Cake\TestSuite\Fixture\TestFixture;
 
 class CommentsFixture extends TestFixture
 {
-    public $table = 'trash_comments';
-
-    /**
-     * fields property
-     *
-     * @var array
-     */
-    public $fields = [
-        'id' => ['type' => 'integer'],
-        'user_id' => ['type' => 'integer', 'null' => false],
-        'article_id' => ['type' => 'integer', 'null' => false],
-        'body' => ['type' => 'text', 'null' => false],
-        'trashed' => ['type' => 'datetime', 'null' => true],
-        'created' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
-    ];
+    public string $table = 'trash_comments';
 
     /**
      * records property
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['user_id' => 1, 'article_id' => 1, 'body' => 'Dummy text'],
         ['user_id' => 1, 'article_id' => 1, 'body' => 'Some other dummy text'],
         ['user_id' => 1, 'article_id' => 2, 'body' => 'Even more dummy text'],

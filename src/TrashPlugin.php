@@ -8,33 +8,33 @@ use Cake\Core\BasePlugin;
 /**
  * Plugin for Muffin Trash - Soft Delete
  */
-class Plugin extends BasePlugin
+class TrashPlugin extends BasePlugin
 {
     /**
      * Disable routes hook.
      *
      * @var bool
      */
-    protected $routesEnabled = false;
+    protected bool $routesEnabled = false;
 
     /**
      * Disable middleware hook.
      *
      * @var bool
      */
-    protected $middlewareEnabled = false;
+    protected bool $middlewareEnabled = false;
 
     /**
      * Disable console hook.
      *
      * @var bool
      */
-    protected $consoleEnabled = false;
+    protected bool $consoleEnabled = false;
 
     /**
      * Disable console hook.
      *
      * @var bool
      */
-    protected $bootstrapEnabled = false;
+    protected bool $bootstrapEnabled = false;
 }

@@ -1,31 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-    bootstrap="./tests/bootstrap.php"
-    colors="true"
-    stopOnFailure="false"
-    >
-
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" processIsolation="false" stopOnFailure="false" bootstrap="./tests/bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd">
+    <coverage/>
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <ini name="apc.enable_cli" value="1"/>
+        <env name="FIXTURE_SCHEMA_METADATA" value="./tests/schema.php"/>
+    </php>
+    <!-- Add any additional test suites you want to run here -->
     <testsuites>
         <testsuite name="Muffin/Trash Test Cases">
-            <directory>./tests/</directory>
+            <directory>./tests/TestCase/</directory>
         </testsuite>
     </testsuites>
-
     <!-- Setup a listener for fixtures -->
-    <listeners>
-        <listener
-        class="\Cake\TestSuite\Fixture\FixtureInjector"
-        file="./vendor/cakephp/cakephp/src/TestSuite/Fixture/FixtureInjector.php">
-            <arguments>
-                <object class="\Cake\TestSuite\Fixture\FixtureManager" />
-            </arguments>
-        </listener>
-    </listeners>
-
-    <!-- Prevent coverage reports from looking in tests and vendors -->
-    <filter>
-        <whitelist>
+    <extensions>
+        <bootstrap class="Cake\TestSuite\Fixture\Extension\PHPUnitExtension"/>
+    </extensions>
+    <source>
+        <include>
             <directory suffix=".php">./src/</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </source>
 </phpunit>

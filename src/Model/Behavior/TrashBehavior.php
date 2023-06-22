@@ -8,16 +8,19 @@ use Cake\Core\Configure;
 use Cake\Database\Expression\BetweenExpression;
 use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
+use Cake\Database\Expression\QueryExpression;
 use Cake\Database\Expression\UnaryExpression;
+use Cake\Database\Query\SelectQuery;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
-use Cake\ORM\Query;
 use Cake\ORM\Table;
+use Closure;
 use InvalidArgumentException;
 use RuntimeException;
+use function Cake\Core\pluginSplit;
 
 /**
  * Trash Behavior.
@@ -33,7 +36,7 @@ class TrashBehavior extends Behavior
      *
      * @var array<string, mixed>
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'field' => null,
         'priority' => null,
         'events' => [
@@ -100,7 +103,7 @@ class TrashBehavior extends Behavior
      * @return bool
      * @throws \RuntimeException if fails to mark entity as `trashed`.
      */
-    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options): bool
     {
         if ($options->offsetExists('purge') && $options['purge'] === true) {
             return true;
@@ -146,7 +149,7 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $data = [$this->getTrashField(false) => new FrozenTime()];
+        $data = [$this->getTrashField(false) => new DateTime()];
         $entity->set($data, ['guard' => false]);
 
         if ($this->_table->save($entity, $options)) {
@@ -160,17 +163,17 @@ class TrashBehavior extends Behavior
      * Callback to always return rows that have not been `trashed`.
      *
      * @param \Cake\Event\Event $event Event.
-     * @param \Cake\ORM\Query $query Query.
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param \ArrayObject $options Options.
      * @param bool $primary Primary or associated table being queries.
      * @return void
      */
-    public function beforeFind(EventInterface $event, Query $query, ArrayObject $options, $primary)
+    public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
         $field = $this->getTrashField();
         $addCondition = true;
 
-        $query->traverseExpressions(function ($expression) use (&$addCondition, $field) {
+        $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
             if (!$addCondition) {
                 return;
             }
@@ -202,11 +205,11 @@ class TrashBehavior extends Behavior
     /**
      * Custom finder to get only the `trashed` rows.
      *
-     * @param \Cake\ORM\Query $query Query.
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param array $options Options.
-     * @return \Cake\ORM\Query
+     * @return \Cake\ORM\Query\SelectQuery
      */
-    public function findOnlyTrashed(Query $query, array $options): Query
+    public function findOnlyTrashed(SelectQuery $query, array $options): SelectQuery
     {
         return $query->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
     }
@@ -214,11 +217,11 @@ class TrashBehavior extends Behavior
     /**
      * Custom finder to get all rows (`trashed` or not).
      *
-     * @param \Cake\ORM\Query $query Query.
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param array $options Options.
-     * @return \Cake\ORM\Query
+     * @return \Cake\ORM\Query\SelectQuery
      */
-    public function findWithTrashed(Query $query, array $options): Query
+    public function findWithTrashed(SelectQuery $query, array $options = []): SelectQuery
     {
         return $query->applyOptions([
             'skipAddTrashCondition' => true,
@@ -232,10 +235,10 @@ class TrashBehavior extends Behavior
      * can take.
      * @return int Count Returns the affected rows.
      */
-    public function trashAll($conditions): int
+    public function trashAll(mixed $conditions): int
     {
         return $this->_table->updateAll(
-            [$this->getTrashField(false) => new FrozenTime()],
+            [$this->getTrashField(false) => new DateTime()],
             $conditions
         );
     }
@@ -255,9 +258,9 @@ class TrashBehavior extends Behavior
      *
      * @param \Cake\Datasource\EntityInterface|null $entity to restore.
      * @param array $options Restore operation options (only applies when restoring a specific entity).
-     * @return bool|\Cake\Datasource\EntityInterface|int|mixed
+     * @return \Cake\Datasource\EntityInterface|int|false
      */
-    public function restoreTrash(?EntityInterface $entity = null, array $options = [])
+    public function restoreTrash(?EntityInterface $entity = null, array $options = []): bool|int|EntityInterface
     {
         $data = [$this->getTrashField(false) => null];
 
@@ -276,20 +279,25 @@ class TrashBehavior extends Behavior
     /**
      * Restore an item from trashed status and all its related data
      *
-     * @param \Cake\Datasource\EntityInterface $entity Entity instance
+     * @param \Cake\Datasource\EntityInterface|null $entity Entity instance
      * @param array $options Restore operation options (only applies when restoring a specific entity).
-     * @return bool|\Cake\Datasource\EntityInterface|int
+     * @return \Cake\Datasource\EntityInterface|int|bool
      */
-    public function cascadingRestoreTrash(?EntityInterface $entity = null, array $options = [])
-    {
+    public function cascadingRestoreTrash(
+        ?EntityInterface $entity = null,
+        array $options = []
+    ): bool|int|EntityInterface {
         $result = $this->restoreTrash($entity, $options);
 
         /** @var \Cake\ORM\Association $association */
         foreach ($this->_table->associations() as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
-                    $result += $association->getTarget()->cascadingRestoreTrash(null, $options);
+                    if ($result) {
+                        $result += $association->getTarget()->cascadingRestoreTrash(null, $options);
+                    }
                 } else {
+                    /** @var array<array-key,array-key> $foreignKey */
                     $foreignKey = (array)$association->getForeignKey();
                     $bindingKey = (array)$association->getBindingKey();
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
@@ -313,15 +321,16 @@ class TrashBehavior extends Behavior
     /**
      * Returns a unary expression for bulk record manipulation.
      *
-     * @return \Cake\Database\Expression\UnaryExpression
+     * @return \Closure
      */
-    protected function _getUnaryExpression()
+    protected function _getUnaryExpression(): Closure
     {
-        return new UnaryExpression(
-            'IS NOT NULL',
-            $this->getTrashField(false),
-            UnaryExpression::POSTFIX
-        );
+        return fn (QueryExpression $queryExpression): QueryExpression => $queryExpression
+            ->add(new UnaryExpression(
+                'IS NOT NULL',
+                $this->getTrashField(false),
+                UnaryExpression::POSTFIX
+            ));
     }
 
     /**
