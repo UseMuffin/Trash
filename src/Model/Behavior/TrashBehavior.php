@@ -262,7 +262,7 @@ class TrashBehavior extends Behavior
      * @param array $options Restore operation options (only applies when restoring a specific entity).
      * @return \Cake\Datasource\EntityInterface|int|false
      */
-    public function restoreTrash(?EntityInterface $entity = null, array $options = []): bool|int|EntityInterface
+    public function restoreTrash(?EntityInterface $entity = null, array $options = []): false|int|EntityInterface
     {
         $data = [$this->getTrashField(false) => null];
 
