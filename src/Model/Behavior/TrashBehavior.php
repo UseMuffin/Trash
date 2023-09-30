@@ -97,7 +97,7 @@ class TrashBehavior extends Behavior
     /**
      * Callback to never really delete a record but instead mark it as `trashed`.
      *
-     * @param \Cake\Event\Event $event The beforeDelete event that was fired.
+     * @param \Cake\Event\EventInterface $event The beforeDelete event that was fired.
      * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted.
      * @param \ArrayObject $options Options.
      * @return void
@@ -164,7 +164,7 @@ class TrashBehavior extends Behavior
     /**
      * Callback to always return rows that have not been `trashed`.
      *
-     * @param \Cake\Event\Event $event Event.
+     * @param \Cake\Event\EventInterface $event Event.
      * @param \Cake\ORM\Query\SelectQuery $query Query.
      * @param \ArrayObject $options Options.
      * @param bool $primary Primary or associated table being queries.
