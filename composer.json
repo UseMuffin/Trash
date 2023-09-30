@@ -32,10 +32,10 @@
     },
     "require": {
         "php": ">=8.1",
-        "cakephp/orm": "5.x-dev as 5.0.0"
+        "cakephp/orm": "^5.0.0"
     },
     "require-dev": {
-        "cakephp/cakephp": "5.x-dev as 5.0.0",
+        "cakephp/cakephp": "^5.0.0",
         "phpunit/phpunit": "^10.1.0",
         "cakephp/cakephp-codesniffer": "^5.0"
     },
@@ -63,8 +63,6 @@
             "Muffin\\Trash\\Test\\": "tests"
         }
     },
-    "prefer-stable": true,
-    "minimum-stability": "dev",
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
