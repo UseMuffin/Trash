@@ -1,36 +1,19 @@
 <?php
 namespace Muffin\Trash\Test\Fixture;
 
-use Cake\I18n\FrozenTime;
+use Cake\I18n\Time;
 use Cake\TestSuite\Fixture\TestFixture;
 
 class ArticlesFixture extends TestFixture
 {
-    public $table = 'trash_articles';
-
-    /**
-     * fields property
-     *
-     * @var array
-     */
-    public $fields = [
-        'id' => ['type' => 'integer'],
-        'title' => ['type' => 'string', 'null' => false],
-        'sub_title' => ['type' => 'string', 'null' => false],
-        'comment_count' => ['type' => 'integer', 'null' => true],
-        'total_comment_count' => ['type' => 'integer', 'null' => true],
-        'trashed' => ['type' => 'datetime', 'null' => true],
-        'created' => ['type' => 'datetime', 'null' => true],
-        'modified' => ['type' => 'datetime', 'null' => true],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
-    ];
+    public string $table = 'trash_articles';
 
     /**
      * records property
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['title' => 'First Article', 'sub_title' => 'subtitle 1'],
         ['title' => 'Second Article', 'sub_title' => 'subtitle 2'],
         ['title' => 'Third Article', 'sub_title' => 'subtitle 3'],
@@ -38,7 +21,7 @@ class ArticlesFixture extends TestFixture
 
     public function init(): void
     {
-        $created = $modified = new FrozenTime();
+        $created = $modified = new Time();
         array_walk($this->records, function (&$record) use ($created, $modified) {
             $record += compact('created', 'modified');
         });

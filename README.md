@@ -58,6 +58,12 @@ $this->addBehavior('Muffin/Trash.Trash', [
 ]);
 ```
 
+or use the purge option:
+
+```php
+$table->delete($entity, ['purge' => true]);
+```
+
 ### Cascading deletion
 
 If you'd like to have related records marked as trashed when deleting a parent
