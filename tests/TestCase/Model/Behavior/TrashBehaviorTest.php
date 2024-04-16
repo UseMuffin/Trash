@@ -12,19 +12,11 @@ use Cake\Event\Event;
 use Cake\I18n\DateTime;
 use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
+use Cake\ORM\Table;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
 
-/**
- * @property \Cake\ORM\Table Users
- * @property \Cake\ORM\Table CompositeArticlesUsers
- * @property \Cake\ORM\Table Comments
- * @property \Cake\ORM\Table Articles
- * @property \Muffin\Trash\Model\Behavior\TrashBehavior Behavior
- *
- * @property \Cake\ORM\Table @mixin \Muffin\Trash\Model\Behavior\TrashBehavior
- */
 class TrashBehaviorTest extends TestCase
 {
     /**
@@ -32,13 +24,19 @@ class TrashBehaviorTest extends TestCase
      *
      * @var array
      */
-    public array $fixtures = [
+    protected array $fixtures = [
         'plugin.Muffin/Trash.Articles',
         'plugin.Muffin/Trash.Comments',
         'plugin.Muffin/Trash.Users',
         'plugin.Muffin/Trash.ArticlesUsers',
         'plugin.Muffin/Trash.CompositeArticlesUsers',
     ];
+
+    protected Table $Users;
+    protected Table $CompositeArticlesUsers;
+    protected Table $Comments;
+    protected Table $Articles;
+    protected TrashBehavior $Behavior;
 
     /**
      * Runs before each test.
