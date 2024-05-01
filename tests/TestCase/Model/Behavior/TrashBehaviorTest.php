@@ -54,6 +54,7 @@ class TrashBehaviorTest extends TestCase
             'foreignKey' => 'user_id',
             'targetForeignKey' => 'article_id',
         ]);
+        $this->Users->addBehavior('Muffin/Trash.Trash');
 
         $this->CompositeArticlesUsers = $this->getTableLocator()->get(
             'Muffin/Trash.CompositeArticlesUsers',
@@ -84,6 +85,7 @@ class TrashBehaviorTest extends TestCase
             'joinTable' => 'trash_articles_users',
             'foreignKey' => 'article_id',
             'targetForeignKey' => 'user_id',
+            'cascadeCallbacks' => true,
         ]);
         $this->Articles->hasMany('CompositeArticlesUsers', [
             'className' => 'Muffin/Trash.CompositeArticlesUsers',
@@ -320,6 +322,15 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
+
+        // Ensure the junction table record is not deleted
+        $this->assertSame(
+            2,
+            $this->getTableLocator()
+                ->get('ArticlesUsers', ['table' => 'trash_articles_users'])
+                ->find()
+                ->count()
+        );
     }
 
     /**
@@ -802,7 +813,9 @@ class TrashBehaviorTest extends TestCase
     public function testGetTrashFieldException()
     {
         $this->expectException(CakeException::class);
-        $trash = new TrashBehavior($this->Users);
+        $this->expectExceptionMessage('TrashBehavior: "field" config needs to be provided.');
+
+        $trash = new TrashBehavior($this->getTableLocator()->get('ArticlesUsers', ['table' => 'trash_articles_users']));
         $trash->getTrashField();
     }
 

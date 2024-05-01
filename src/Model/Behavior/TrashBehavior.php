@@ -145,7 +145,8 @@ class TrashBehavior extends Behavior
             }
         }
 
-        foreach ($this->_table->associations() as $association) {
+        $associations = $this->_table->associations()->getByType(['HasOne', 'HasMany']);
+        foreach ($associations as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 $association->cascadeDelete($entity, ['_primary' => false] + $options);
             }
@@ -291,8 +292,8 @@ class TrashBehavior extends Behavior
     ): bool|int|EntityInterface {
         $result = $this->restoreTrash($entity, $options);
 
-        /** @var \Cake\ORM\Association $association */
-        foreach ($this->_table->associations() as $association) {
+        $associations = $this->_table->associations()->getByType(['HasOne', 'HasMany']);
+        foreach ($associations as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
                     if ($result > 1) {

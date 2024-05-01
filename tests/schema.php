@@ -59,6 +59,7 @@ return [
         'columns' => [
             'id' => ['type' => 'integer'],
             'name' => ['type' => 'string', 'null' => false],
+            'trashed' => ['type' => 'datetime', 'null' => true],
             'created' => ['type' => 'datetime', 'null' => true],
         ],
         'constraints' => [
