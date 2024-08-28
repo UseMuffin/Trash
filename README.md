@@ -73,6 +73,14 @@ item, you can just attach the behavior to the related table classes, and set the
 This works on relationships where the item being deleted in the owning side of
 the relationship. Which means that the related table should contain the foreign key.
 
+If you want to cascade normal (purge) deletion, but not to cascade trash/restore then:
+```php
+// in the initialize() method
+$this->addBehavior('Muffin/Trash.Trash', [
+    'cascadeTrashAndRestore' => false,
+]);
+```
+
 ### Custom Finders
 
 - **onlyTrashed** - helps getting only those trashed records.

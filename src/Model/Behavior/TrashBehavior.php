@@ -43,6 +43,7 @@ class TrashBehavior extends Behavior
             'Model.beforeDelete',
             'Model.beforeFind',
         ],
+        'cascadeTrashAndRestore' => true,
     ];
 
     /**
@@ -388,6 +389,7 @@ class TrashBehavior extends Behavior
                 $association->getTarget()->hasBehavior('Trash')
                 || $association->getTarget()->hasBehavior(static::class)
             )
+            && $this->getConfig('cascadeTrashAndRestore')
             && $association->isOwningSide($table)
             && $association->getDependent()
             && $association->getCascadeCallbacks();
