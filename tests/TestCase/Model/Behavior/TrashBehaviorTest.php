@@ -539,7 +539,7 @@ class TrashBehaviorTest extends TestCase
         $association->setCascadeCallbacks(true);
 
         // disable cascade trash/restore
-        $this->Articles->behaviors()->get('Trash')->setConfig('cascadeTrashAndRestore', false);
+        $this->Articles->behaviors()->get('Trash')->setConfig('cascadeOnTrash', false);
 
         $article = $this->Articles->get(1);
         $this->Articles->trash($article);

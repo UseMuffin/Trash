@@ -43,7 +43,7 @@ class TrashBehavior extends Behavior
             'Model.beforeDelete',
             'Model.beforeFind',
         ],
-        'cascadeTrashAndRestore' => true,
+        'cascadeOnTrash' => true,
     ];
 
     /**
@@ -146,10 +146,12 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $associations = $this->_table->associations()->getByType(['HasOne', 'HasMany']);
-        foreach ($associations as $association) {
-            if ($this->_isRecursable($association, $this->_table)) {
-                $association->cascadeDelete($entity, ['_primary' => false] + $options);
+        if ($this->getConfig('cascadeOnTrash')) {
+            $associations = $this->_table->associations()->getByType(['HasOne', 'HasMany']);
+            foreach ($associations as $association) {
+                if ($this->_isRecursable($association, $this->_table)) {
+                    $association->cascadeDelete($entity, ['_primary' => false] + $options);
+                }
             }
         }
 
@@ -389,7 +391,6 @@ class TrashBehavior extends Behavior
                 $association->getTarget()->hasBehavior('Trash')
                 || $association->getTarget()->hasBehavior(static::class)
             )
-            && $this->getConfig('cascadeTrashAndRestore')
             && $association->isOwningSide($table)
             && $association->getDependent()
             && $association->getCascadeCallbacks();
