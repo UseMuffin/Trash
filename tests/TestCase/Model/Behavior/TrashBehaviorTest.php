@@ -526,6 +526,38 @@ class TrashBehaviorTest extends TestCase
         $this->assertInstanceOf(DateTime::class, $article->comments[0]->trashed);
     }
 
+    /**
+     * When cascadeTrashAndRestore = false
+     * Ensure that when trashing it will not cascade into related dependent records
+     *
+     * @return void
+     */
+    public function testDisabledCascadingForTrash()
+    {
+        $association = $this->Articles->Comments;
+        $association->setDependent(true);
+        $association->setCascadeCallbacks(true);
+
+        // disable cascade trash/restore
+        $this->Articles->behaviors()->get('Trash')->setConfig('cascadeOnTrash', false);
+
+        $article = $this->Articles->get(1);
+        $this->Articles->trash($article);
+
+        $article = $this->Articles->find('withTrashed')
+            ->where(['Articles.id' => 1])
+            ->contain(['Comments' => [
+                'finder' => 'withTrashed',
+            ]])
+            ->first();
+
+        $this->assertNotEmpty($article->trashed);
+        $this->assertInstanceOf(DateTime::class, $article->trashed);
+
+        // expect not trashed
+        $this->assertEmpty($article->comments[0]->trashed);
+    }
+
     public function testCascadingUntrashOptionsArePassedToSave()
     {
         $association = $this->Articles->Comments;
