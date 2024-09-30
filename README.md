@@ -1,6 +1,7 @@
 # Trash
 
-[![Build Status](https://img.shields.io/travis/UseMuffin/Trash/master.svg?style=flat-square)](https://github.com/UseMuffin/Trash/actions?query=workflow%3ACI+branch%3Amaster)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/UseMuffin/Trash/ci.yml?style=flat-square
+)](https://github.com/UseMuffin/Trash/actions?query=workflow%3ACI+branch%3Amaster)
 [![Coverage](https://img.shields.io/codecov/c/github/UseMuffin/Trash/master.svg?style=flat-square)](https://codecov.io/github/UseMuffin/Trash)
 [![Total Downloads](https://img.shields.io/packagist/dt/muffin/trash.svg?style=flat-square)](https://packagist.org/packages/muffin/trash)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -30,12 +31,11 @@ In your table(s), add the behavior like you would for any other behavior:
 $this->addBehavior('Muffin/Trash.Trash');
 ```
 
-By default, the behavior will auto-detect the `DATETIME` column used to track
-trashed (soft-deleted) records but only if you are using `deleted` or `trashed`
-as names. Otherwise, you could customize that when adding the behavior:
+By default, the behavior expects your table to have a *nullable* `DATETIME` column
+named `deleted` or `trashed`. Or you could customize the name when adding the behavior:
 
 ```php
-// in the initialize() method
+// in your table's initialize() method
 $this->addBehavior('Muffin/Trash.Trash', [
     'field' => 'deleted_at'
 ]);
