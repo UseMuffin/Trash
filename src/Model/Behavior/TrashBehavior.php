@@ -27,6 +27,8 @@ use function Cake\Core\pluginSplit;
  */
 class TrashBehavior extends Behavior
 {
+    public const SOFT_DELETE_OPTION = 'muffin.trash.soft-delete';
+
     /**
      * Default configuration.
      *
@@ -117,6 +119,8 @@ class TrashBehavior extends Behavior
 
             return;
         }
+
+        $options[self::SOFT_DELETE_OPTION] = true;
 
         /** @var \Cake\ORM\Table $table */
         $table = $event->getSubject();
