@@ -66,7 +66,7 @@ $table->delete($entity, ['purge' => true]);
 
 ## Detecting trashing
 If you need to distinguish between deletion and trashing the behavior
-adds the ['muffin.trash.soft-delete' => true ] option to the afterDelete event
+adds the ['trash' => true ] option to the afterDelete event
 it creates when trashing.
 
 ### Cascading deletion
