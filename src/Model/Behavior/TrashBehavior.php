@@ -27,7 +27,7 @@ use function Cake\Core\pluginSplit;
  */
 class TrashBehavior extends Behavior
 {
-    public const DELETE_OPTION_NAME = 'trash;;
+    public const DELETE_OPTION_NAME = 'trash';
 
     /**
      * Default configuration.
