@@ -120,7 +120,7 @@ class TrashBehavior extends Behavior
             return;
         }
 
-        $options[self::SOFT_DELETE_OPTION] = true;
+        $options[self::DELETE_OPTION_NAME] = true;
 
         /** @var \Cake\ORM\Table $table */
         $table = $event->getSubject();
