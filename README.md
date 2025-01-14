@@ -64,6 +64,11 @@ or use the purge option:
 $table->delete($entity, ['purge' => true]);
 ```
 
+## Detecting trashing
+If you need to distinguish between deletion and trashing the behavior
+adds the ['trash' => true ] option to the afterDelete event
+it creates when trashing.
+
 ### Cascading deletion
 
 If you'd like to have related records marked as trashed when deleting a parent

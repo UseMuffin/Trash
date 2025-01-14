@@ -27,6 +27,8 @@ use function Cake\Core\pluginSplit;
  */
 class TrashBehavior extends Behavior
 {
+    public const DELETE_OPTION_NAME = 'trash';
+
     /**
      * Default configuration.
      *
@@ -117,6 +119,8 @@ class TrashBehavior extends Behavior
 
             return;
         }
+
+        $options[self::DELETE_OPTION_NAME] = true;
 
         /** @var \Cake\ORM\Table $table */
         $table = $event->getSubject();
