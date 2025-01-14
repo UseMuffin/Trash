@@ -181,7 +181,7 @@ class TrashBehavior extends Behavior
     public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
         $option = $query->getOptions();
-        if (empty($option['skipAddTrashCondition'])) {
+        if (!empty($option['skipAddTrashCondition'])) {
             return;
         }
 
