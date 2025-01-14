@@ -180,7 +180,27 @@ class TrashBehavior extends Behavior
      */
     public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
+        $option = $query->getOptions();
+        if (empty($option['skipAddTrashCondition'])) {
+            return;
+        }
+
         $field = $this->getTrashField();
+
+        if ($this->addTrashCondition($query, $field)) {
+            $query->andWhere($query->newExpr()->isNull($field));
+        }
+    }
+
+    /**
+     * Whether we need to add the trash condition to the query
+     *
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
+     * @param string $field Trash field
+     * @return bool
+     */
+    protected function addTrashCondition(SelectQuery $query, string $field): bool
+    {
         $addCondition = true;
 
         $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
@@ -205,11 +225,7 @@ class TrashBehavior extends Behavior
             }
         });
 
-        $option = $query->getOptions();
-
-        if ($addCondition && empty($option['skipAddTrashCondition'])) {
-            $query->andWhere($query->newExpr()->isNull($field));
-        }
+        return $addCondition;
     }
 
     /**
