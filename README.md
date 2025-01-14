@@ -94,7 +94,9 @@ as part of certain calls.
 
 ### Extras
 
-- **emptyTrash()** - permanently deletes all trashed records.
+- **emptyTrash($entity = null)** - permanently deletes one (or all) trashed records.
+- **cascadingEmptyTrash($entity = null)** - permanently deletes one (or all) trashed records including
+those of dependent associations.
 - **restoreTrash($entity = null, array $options = [])** - restores one (or all) trashed records.
 - **cascadingRestoreTrash($entity = null, array $options = [])** - restores one (or all) trashed records including
 those of dependent associations.

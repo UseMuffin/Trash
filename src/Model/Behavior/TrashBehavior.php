@@ -254,16 +254,6 @@ class TrashBehavior extends Behavior
     }
 
     /**
-     * Deletes all rows marked as `trashed`.
-     *
-     * @return int
-     */
-    public function emptyTrash(): int
-    {
-        return $this->_table->deleteAll($this->_getUnaryExpression());
-    }
-
-    /**
      * Restores all (or given) trashed row(s).
      *
      * @param \Cake\Datasource\EntityInterface|null $entity to restore.
@@ -318,6 +308,57 @@ class TrashBehavior extends Behavior
                             !$association
                                 ->getTarget()
                                 ->cascadingRestoreTrash($related, ['_primary' => false] + $options)
+                        ) {
+                            $result = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Deletes all (or given) rows marked as `trashed`.
+     * 
+     * @param \Cake\Datasource\EntityInterface|null $entity to delete.
+     * @return bool|\Cake\Datasource\EntityInterface|int
+     */
+    public function emptyTrash(?EntityInterface $entity = null)
+    {
+        if ($entity instanceof EntityInterface) {
+        	return $this->_table->deleteAll(['id' => $entity->id]) ? $entity : false;
+        }
+
+        return $this->_table->deleteAll($this->_getUnaryExpression());
+    }
+
+    /**
+     * Delete an item from trashed status and all its related data
+     *
+     * @param \Cake\Datasource\EntityInterface $entity Entity instance
+     * @return bool|\Cake\Datasource\EntityInterface|int
+     */
+    public function cascadingEmptyTrash(?EntityInterface $entity = null)
+    {
+        $result = $this->emptyTrash($entity);
+
+        /** @var \Cake\ORM\Association $association */
+        foreach ($this->_table->associations() as $association) {
+            if ($this->_isRecursable($association, $this->_table)) {
+                if ($entity === null) {
+                    $result += $association->getTarget()->cascadingEmptyTrash(null);
+                } else {
+                    $foreignKey = (array)$association->getForeignKey();
+                    $bindingKey = (array)$association->getBindingKey();
+                    $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
+
+                    foreach ($association->find('onlyTrashed')->where($conditions) as $related) {
+                        if (
+                            !$association
+                                ->getTarget()
+                                ->cascadingEmptyTrash($related)
                         ) {
                             $result = false;
                         }
