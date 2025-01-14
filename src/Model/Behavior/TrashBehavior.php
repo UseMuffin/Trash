@@ -187,7 +187,7 @@ class TrashBehavior extends Behavior
 
         $field = $this->getTrashField();
 
-        if ($this->addTrashCondition($query, $field)) {
+        if ($this->shouldAddTrashCondition($query, $field)) {
             $query->andWhere($query->newExpr()->isNull($field));
         }
     }
@@ -199,7 +199,7 @@ class TrashBehavior extends Behavior
      * @param string $field Trash field
      * @return bool
      */
-    protected function addTrashCondition(SelectQuery $query, string $field): bool
+    protected function shouldAddTrashCondition(SelectQuery $query, string $field): bool
     {
         $addCondition = true;
 
