@@ -180,7 +180,26 @@ class TrashBehavior extends Behavior
      */
     public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
+        if (!empty($options['skipAddTrashCondition'])) {
+            return;
+        }
+
         $field = $this->getTrashField();
+
+        if ($this->shouldAddTrashCondition($query, $field)) {
+            $query->andWhere([$field . ' IS' => null]);
+        }
+    }
+
+    /**
+     * Whether we need to add the trash condition to the query
+     *
+     * @param \Cake\ORM\Query\SelectQuery $query Query.
+     * @param string $field Trash field
+     * @return bool
+     */
+    protected function shouldAddTrashCondition(SelectQuery $query, string $field): bool
+    {
         $addCondition = true;
 
         $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
@@ -205,11 +224,7 @@ class TrashBehavior extends Behavior
             }
         });
 
-        $option = $query->getOptions();
-
-        if ($addCondition && empty($option['skipAddTrashCondition'])) {
-            $query->andWhere($query->newExpr()->isNull($field));
-        }
+        return $addCondition;
     }
 
     /**
@@ -221,7 +236,9 @@ class TrashBehavior extends Behavior
      */
     public function findOnlyTrashed(SelectQuery $query, array $options): SelectQuery
     {
-        return $query->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
+        return $query
+            ->applyOptions(['skipAddTrashCondition' => true])
+            ->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
     }
 
     /**
