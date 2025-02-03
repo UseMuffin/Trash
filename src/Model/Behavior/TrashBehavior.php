@@ -6,8 +6,7 @@ namespace Muffin\Trash\Model\Behavior;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Exception\CakeException;
-use Cake\Database\Expression\BetweenExpression;
-use Cake\Database\Expression\ComparisonExpression;
+use Cake\Database\Expression\FieldInterface;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Database\Expression\UnaryExpression;
@@ -184,13 +183,15 @@ class TrashBehavior extends Behavior
         $addCondition = true;
 
         $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
-            if (!$addCondition) {
+            if ($addCondition === false) {
                 return;
             }
 
             if (
                 $expression instanceof IdentifierExpression
-                && $expression->getIdentifier() === $field
+                && ($expression->getIdentifier() === $field
+                 || $this->table()->aliasField($expression->getIdentifier()) == $field
+                )
             ) {
                 $addCondition = false;
 
@@ -198,8 +199,10 @@ class TrashBehavior extends Behavior
             }
 
             if (
-                ($expression instanceof ComparisonExpression || $expression instanceof BetweenExpression)
-                && $expression->getField() === $field
+                $expression instanceof FieldInterface
+                && ($expression->getField() === $field
+                || $this->table()->aliasField($expression->getField()) == $field
+                )
             ) {
                 $addCondition = false;
             }
