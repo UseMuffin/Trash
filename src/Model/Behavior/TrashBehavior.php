@@ -190,7 +190,7 @@ class TrashBehavior extends Behavior
             if (
                 $expression instanceof IdentifierExpression
                 && ($expression->getIdentifier() === $field
-                 || $this->table()->aliasField($expression->getIdentifier()) == $field
+                 || $this->table()->aliasField($expression->getIdentifier()) === $field
                 )
             ) {
                 $addCondition = false;
@@ -201,7 +201,7 @@ class TrashBehavior extends Behavior
             if (
                 $expression instanceof FieldInterface
                 && ($expression->getField() === $field
-                || $this->table()->aliasField($expression->getField()) == $field
+                || $this->table()->aliasField($expression->getField()) === $field
                 )
             ) {
                 $addCondition = false;
