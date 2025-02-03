@@ -179,19 +179,18 @@ class TrashBehavior extends Behavior
      */
     public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
-        $field = $this->getTrashField();
+        $field = $this->getTrashField(false);
+        $fieldIdentifiers = [ $field, $this->table()->aliasField($field)];
         $addCondition = true;
 
-        $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
+        $query->traverseExpressions(function ($expression) use (&$addCondition, $fieldIdentifiers): void {
             if ($addCondition === false) {
                 return;
             }
 
             if (
                 $expression instanceof IdentifierExpression
-                && ($expression->getIdentifier() === $field
-                 || $this->table()->aliasField($expression->getIdentifier()) === $field
-                )
+                && in_array($expression->getIdentifier(), $fieldIdentifiers, true)
             ) {
                 $addCondition = false;
 
@@ -200,9 +199,7 @@ class TrashBehavior extends Behavior
 
             if (
                 $expression instanceof FieldInterface
-                && ($expression->getField() === $field
-                || $this->table()->aliasField($expression->getField()) === $field
-                )
+                && in_array($expression->getField(), $fieldIdentifiers, true)
             ) {
                 $addCondition = false;
             }
