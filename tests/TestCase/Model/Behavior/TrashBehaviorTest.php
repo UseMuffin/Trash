@@ -874,7 +874,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testGetTrashFieldFallbackToDefault()
     {
-        $trash = new TrashBehavior($this->Articles, ['field' => '']);
+        $trash = new TrashBehavior($this->Articles);
 
         $this->assertEmpty($trash->getConfig('field'));
         $this->assertEquals('Articles.trashed', $trash->getTrashField());
