@@ -180,15 +180,14 @@ class TrashBehavior extends Behavior
      */
     public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void
     {
-        $option = $query->getOptions();
-        if (!empty($option['skipAddTrashCondition'])) {
+        if (!empty($options['skipAddTrashCondition'])) {
             return;
         }
 
         $field = $this->getTrashField();
 
         if ($this->shouldAddTrashCondition($query, $field)) {
-            $query->andWhere($query->newExpr()->isNull($field));
+            $query->andWhere([$field . ' IS' => null]);
         }
     }
 
@@ -237,7 +236,9 @@ class TrashBehavior extends Behavior
      */
     public function findOnlyTrashed(SelectQuery $query, array $options): SelectQuery
     {
-        return $query->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
+        return $query
+            ->applyOptions(['skipAddTrashCondition' => true])
+            ->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
     }
 
     /**
