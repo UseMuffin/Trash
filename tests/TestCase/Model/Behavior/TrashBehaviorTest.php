@@ -364,11 +364,11 @@ class TrashBehaviorTest extends TestCase
     public function testFindWithImplicitCondition()
     {
         $this->assertCount(2, $this->Articles->find()->where([
-            'trashed IS NOT' => null
+            'trashed IS NOT' => null,
         ]));
 
         $this->assertCount(2, $this->Articles->find()->where([
-            'Articles.trashed IS NOT' => null
+            'Articles.trashed IS NOT' => null,
         ]));
     }
 
