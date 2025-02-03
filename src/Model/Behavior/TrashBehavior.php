@@ -9,8 +9,6 @@ use Cake\Core\Exception\CakeException;
 use Cake\Database\Expression\BetweenExpression;
 use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
-use Cake\Database\Expression\QueryExpression;
-use Cake\Database\Expression\UnaryExpression;
 use Cake\Database\Query\SelectQuery;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
@@ -18,7 +16,6 @@ use Cake\I18n\DateTime;
 use Cake\ORM\Association;
 use Cake\ORM\Behavior;
 use Cake\ORM\Table;
-use Closure;
 use InvalidArgumentException;
 use function Cake\Core\pluginSplit;
 
@@ -56,7 +53,7 @@ class TrashBehavior extends Behavior
      */
     public function initialize(array $config): void
     {
-        if (!empty($config['events'])) {
+        if (isset($config['events']) && $config['events'] !== []) {
             $this->setConfig('events', $config['events'], false);
         }
     }
@@ -70,10 +67,12 @@ class TrashBehavior extends Behavior
     public function implementedEvents(): array
     {
         $events = [];
-        if ($this->getConfig('events') === false) {
+        $config = $this->getConfig('events');
+        if ($config === false) {
             return $events;
         }
-        foreach ((array)$this->getConfig('events') as $eventKey => $event) {
+
+        foreach ((array)$config as $eventKey => $event) {
             if (is_numeric($eventKey)) {
                 $eventKey = $event;
                 $event = null;
@@ -84,13 +83,16 @@ class TrashBehavior extends Behavior
             if (!is_array($event)) {
                 throw new InvalidArgumentException('Event should be string or array');
             }
-            $priority = $this->getConfig('priority');
+
             if (!array_key_exists('callable', $event) || $event['callable'] === null) {
                 [, $event['callable']] = pluginSplit($eventKey);
             }
+
+            $priority = $this->getConfig('priority');
             if ($priority && !array_key_exists('priority', $event)) {
                 $event['priority'] = $priority;
             }
+
             $events[$eventKey] = $event;
         }
 
@@ -108,7 +110,7 @@ class TrashBehavior extends Behavior
      */
     public function beforeDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options): void
     {
-        if ($options->offsetExists('purge') && $options['purge'] === true) {
+        if (isset($options['purge']) && $options['purge'] === true) {
             return;
         }
 
@@ -159,14 +161,9 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $data = [$this->getTrashField(false) => new DateTime()];
-        $entity->set($data, ['guard' => false]);
+        $entity->set($this->getTrashField(false), new DateTime());
 
-        if ($this->_table->save($entity, $options)) {
-            return true;
-        }
-
-        return false;
+        return (bool)$this->_table->save($entity, $options);
     }
 
     /**
@@ -238,7 +235,7 @@ class TrashBehavior extends Behavior
     {
         return $query
             ->applyOptions(['skipAddTrashCondition' => true])
-            ->andWhere($query->newExpr()->isNotNull($this->getTrashField()));
+            ->andWhere([$this->getTrashField() . ' IS NOT' => null]);
     }
 
     /**
@@ -250,9 +247,7 @@ class TrashBehavior extends Behavior
      */
     public function findWithTrashed(SelectQuery $query, array $options = []): SelectQuery
     {
-        return $query->applyOptions([
-            'skipAddTrashCondition' => true,
-        ]);
+        return $query->applyOptions(['skipAddTrashCondition' => true]);
     }
 
     /**
@@ -277,7 +272,7 @@ class TrashBehavior extends Behavior
      */
     public function emptyTrash(): int
     {
-        return $this->_table->deleteAll($this->_getUnaryExpression());
+        return $this->_table->deleteAll([$this->getTrashField(false) . ' IS NOT' => null]);
     }
 
     /**
@@ -300,7 +295,7 @@ class TrashBehavior extends Behavior
             return $this->_table->save($entity, $options);
         }
 
-        return $this->_table->updateAll($data, $this->_getUnaryExpression());
+        return $this->_table->updateAll($data, [$this->getTrashField(false) . ' IS NOT' => null]);
     }
 
     /**
@@ -347,21 +342,6 @@ class TrashBehavior extends Behavior
     }
 
     /**
-     * Returns a unary expression for bulk record manipulation.
-     *
-     * @return \Closure
-     */
-    protected function _getUnaryExpression(): Closure
-    {
-        return fn (QueryExpression $queryExpression): QueryExpression => $queryExpression
-            ->add(new UnaryExpression(
-                'IS NOT NULL',
-                $this->getTrashField(false),
-                UnaryExpression::POSTFIX
-            ));
-    }
-
-    /**
      * Returns the table's field used to mark a `trashed` row.
      *
      * @param bool $aliased Should field be aliased or not. Default true.
@@ -371,7 +351,7 @@ class TrashBehavior extends Behavior
     {
         $field = $this->getConfig('field');
 
-        if (empty($field)) {
+        if ($field === null) {
             $columns = $this->_table->getSchema()->columns();
             foreach (['deleted', 'trashed'] as $name) {
                 if (in_array($name, $columns, true)) {
@@ -380,12 +360,9 @@ class TrashBehavior extends Behavior
                 }
             }
 
-            /** @psalm-suppress RedundantCondition */
-            if (empty($field)) {
-                $field = Configure::read('Muffin/Trash.field');
-            }
+            $field ??= Configure::read('Muffin/Trash.field');
 
-            if (empty($field)) {
+            if ($field === null) {
                 throw new CakeException('TrashBehavior: "field" config needs to be provided.');
             }
 

@@ -1,8 +1,8 @@
 parameters:
-	level: 6
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
+	level: 8
 	paths:
 		- src/
 	ignoreErrors:
 		- '#Call to an undefined method Cake\\ORM\\Table::cascadingRestoreTrash\(\)#'
+		- identifier: missingType.iterableValue
+		- identifier: missingType.generics
