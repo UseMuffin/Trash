@@ -196,8 +196,7 @@ class TrashBehavior extends Behavior
      */
     protected function shouldAddTrashCondition(SelectQuery $query): bool
     {
-        $field = $this->getTrashField(false);
-        $fieldIdentifiers = [ $field, $this->table()->aliasField($field)];
+        $fieldIdentifiers = [$this->getTrashField(false), $this->getTrashField()];
         $addCondition = true;
 
         $query->traverseExpressions(function ($expression) use (&$addCondition, $fieldIdentifiers): void {
