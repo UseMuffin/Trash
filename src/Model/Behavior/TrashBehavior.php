@@ -201,7 +201,7 @@ class TrashBehavior extends Behavior
         $addCondition = true;
 
         $query->traverseExpressions(function ($expression) use (&$addCondition, $fieldIdentifiers): void {
-            if ($addCondition === false) {
+            if (!$addCondition) {
                 return;
             }
 
