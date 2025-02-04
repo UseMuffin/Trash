@@ -361,6 +361,17 @@ class TrashBehaviorTest extends TestCase
         $this->assertCount(3, $this->Articles->find('withTrashed'));
     }
 
+    public function testFindWithImplicitCondition()
+    {
+        $this->assertCount(2, $this->Articles->find()->where([
+            'trashed IS NOT' => null,
+        ]));
+
+        $this->assertCount(2, $this->Articles->find()->where([
+            'Articles.trashed IS NOT' => null,
+        ]));
+    }
+
     /**
      * Test it can find only trashed records.
      *

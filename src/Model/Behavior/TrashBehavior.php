@@ -6,8 +6,7 @@ namespace Muffin\Trash\Model\Behavior;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Exception\CakeException;
-use Cake\Database\Expression\BetweenExpression;
-use Cake\Database\Expression\ComparisonExpression;
+use Cake\Database\Expression\FieldInterface;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Query\SelectQuery;
 use Cake\Datasource\EntityInterface;
@@ -181,10 +180,8 @@ class TrashBehavior extends Behavior
             return;
         }
 
-        $field = $this->getTrashField();
-
-        if ($this->shouldAddTrashCondition($query, $field)) {
-            $query->andWhere([$field . ' IS' => null]);
+        if ($this->shouldAddTrashCondition($query)) {
+            $query->andWhere([$this->getTrashField() . ' IS' => null]);
         }
     }
 
@@ -192,21 +189,21 @@ class TrashBehavior extends Behavior
      * Whether we need to add the trash condition to the query
      *
      * @param \Cake\ORM\Query\SelectQuery $query Query.
-     * @param string $field Trash field
      * @return bool
      */
-    protected function shouldAddTrashCondition(SelectQuery $query, string $field): bool
+    protected function shouldAddTrashCondition(SelectQuery $query): bool
     {
+        $fieldIdentifiers = [$this->getTrashField(false), $this->getTrashField()];
         $addCondition = true;
 
-        $query->traverseExpressions(function ($expression) use (&$addCondition, $field): void {
+        $query->traverseExpressions(function ($expression) use (&$addCondition, $fieldIdentifiers): void {
             if (!$addCondition) {
                 return;
             }
 
             if (
                 $expression instanceof IdentifierExpression
-                && $expression->getIdentifier() === $field
+                && in_array($expression->getIdentifier(), $fieldIdentifiers, true)
             ) {
                 $addCondition = false;
 
@@ -214,8 +211,8 @@ class TrashBehavior extends Behavior
             }
 
             if (
-                ($expression instanceof ComparisonExpression || $expression instanceof BetweenExpression)
-                && $expression->getField() === $field
+                $expression instanceof FieldInterface
+                && in_array($expression->getField(), $fieldIdentifiers, true)
             ) {
                 $addCondition = false;
             }
