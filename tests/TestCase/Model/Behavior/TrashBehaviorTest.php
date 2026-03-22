@@ -766,7 +766,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
         $this->assertInstanceOf(DateTime::class, $article->composite_articles_users[0]->trashed);
 
-        $this->assertEquals(8, $this->Articles->getBehavior('Trash')->cascadingRestoreTrash());
+        $this->assertEquals(3, $this->Articles->getBehavior('Trash')->cascadingRestoreTrash());
 
         $article = $this->Articles
             ->find()
