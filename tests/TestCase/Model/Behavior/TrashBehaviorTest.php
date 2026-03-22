@@ -16,6 +16,7 @@ use Cake\ORM\Table;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TrashBehaviorTest extends TestCase
 {
@@ -923,11 +924,11 @@ class TrashBehaviorTest extends TestCase
     /**
      * Test the implementedEvents method.
      *
-     * @dataProvider provideConfigsForImplementedEventsTest
      * @param array $config Initial behavior config.
      * @param array $implementedEvents Expected implementedEvents.
      * @return void
      */
+    #[DataProvider('provideConfigsForImplementedEventsTest')]
     public function testImplementedEvents(array $config, array $implementedEvents)
     {
         $trash = new TrashBehavior($this->Users, $config);
@@ -942,6 +943,9 @@ class TrashBehaviorTest extends TestCase
      */
     public static function provideConfigsForImplementedEventsTest()
     {
+        $callable = function () {
+        };
+
         return [
             'No event config inherits default events' => [
                 [],
@@ -1001,8 +1005,7 @@ class TrashBehaviorTest extends TestCase
                 [
                     'events' => [
                         'Model.beforeDelete' => [
-                            'callable' => function () {
-                            },
+                            'callable' => $callable,
                         ],
                         'Model.beforeFind' => [
                             'callable' => ['', 'beforeDelete'],
@@ -1012,8 +1015,7 @@ class TrashBehaviorTest extends TestCase
                 ],
                 [
                     'Model.beforeDelete' => [
-                        'callable' => function () {
-                        },
+                        'callable' => $callable,
                     ],
                     'Model.beforeFind' => [
                         'callable' => ['', 'beforeDelete'],
