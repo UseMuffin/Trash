@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Trash">
-    <config name="installed_paths" value="../../cakephp/cakephp-codesniffer" />
+    <file>src/</file>
+    <file>tests/</file>
 
     <rule ref="CakePHP" />
 </ruleset>

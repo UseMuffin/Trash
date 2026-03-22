@@ -263,7 +263,7 @@ class TrashBehavior extends Behavior
     {
         return $this->_table->updateAll(
             [$this->getTrashField(false) => new DateTime()],
-            $conditions
+            $conditions,
         );
     }
 
@@ -315,7 +315,7 @@ class TrashBehavior extends Behavior
      */
     public function cascadingRestoreTrash(
         ?EntityInterface $entity = null,
-        array $options = []
+        array $options = [],
     ): bool|int|EntityInterface {
         $result = $this->restoreTrash($entity, $options);
         $return = $result;
