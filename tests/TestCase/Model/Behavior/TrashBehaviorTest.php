@@ -304,7 +304,7 @@ class TrashBehaviorTest extends TestCase
     public function testTrashComposite()
     {
         $item = $this->CompositeArticlesUsers->get([3, 1]);
-        $result = $this->CompositeArticlesUsers->trash($item);
+        $result = $this->CompositeArticlesUsers->getBehavior('Trash')->trash($item);
 
         $this->assertTrue($result);
         $this->assertCount(1, $this->CompositeArticlesUsers->find('onlyTrashed'));
@@ -318,7 +318,7 @@ class TrashBehaviorTest extends TestCase
     public function testTrash()
     {
         $article = $this->Articles->get(1);
-        $result = $this->Articles->trash($article);
+        $result = $this->Articles->getBehavior('Trash')->trash($article);
 
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
@@ -343,7 +343,7 @@ class TrashBehaviorTest extends TestCase
         $article = $this->Articles->get(1);
         $article->unset('id');
         $this->expectException(CakeException::class);
-        $this->Articles->trash($article);
+        $this->Articles->getBehavior('Trash')->trash($article);
     }
 
     /**
@@ -355,7 +355,7 @@ class TrashBehaviorTest extends TestCase
     {
         $article = $this->Articles->get(1);
         $article->setAccess('trashed', false);
-        $result = $this->Articles->trash($article);
+        $result = $this->Articles->getBehavior('Trash')->trash($article);
 
         $this->assertTrue($result);
         $this->assertCount(3, $this->Articles->find('withTrashed'));
@@ -399,7 +399,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testEmptyTrash()
     {
-        $this->Articles->emptyTrash();
+        $this->Articles->getBehavior('Trash')->emptyTrash();
 
         $this->assertCount(1, $this->Articles->find());
     }
@@ -411,7 +411,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testRestoreTrash()
     {
-        $this->Articles->restoreTrash();
+        $this->Articles->getBehavior('Trash')->restoreTrash();
 
         $this->assertCount(3, $this->Articles->find());
     }
@@ -427,7 +427,7 @@ class TrashBehaviorTest extends TestCase
         $entity->setDirty('title');
 
         $this->expectException(CakeException::class);
-        $this->Articles->restoreTrash($entity);
+        $this->Articles->getBehavior('Trash')->restoreTrash($entity);
     }
 
     /**
@@ -439,7 +439,7 @@ class TrashBehaviorTest extends TestCase
     {
         $this->assertCount(1, $this->Articles->find());
 
-        $this->Articles->trashAll('1 = 1');
+        $this->Articles->getBehavior('Trash')->trashAll('1 = 1');
         $this->assertCount(0, $this->Articles->find());
     }
 
@@ -450,7 +450,7 @@ class TrashBehaviorTest extends TestCase
      */
     public function testRestoreTrashEntity()
     {
-        $this->Articles->restoreTrash(new Entity([
+        $this->Articles->getBehavior('Trash')->restoreTrash(new Entity([
             'id' => 2,
         ], ['markNew' => false, 'markClean' => true]));
 
@@ -502,7 +502,7 @@ class TrashBehaviorTest extends TestCase
     public function testInteroperabilityWithCounterCacheAndTrashMethod()
     {
         $comment = $this->Comments->get(1);
-        $this->Comments->trash($comment);
+        $this->Comments->getBehavior('Trash')->trash($comment);
         $result = $this->Articles->get(1);
 
         $this->assertEquals(0, $result->comment_count);
@@ -521,7 +521,7 @@ class TrashBehaviorTest extends TestCase
         $association->setCascadeCallbacks(true);
 
         $article = $this->Articles->get(1);
-        $this->Articles->trash($article);
+        $this->Articles->getBehavior('Trash')->trash($article);
 
         $article = $this->Articles->find('withTrashed')
             ->where(['Articles.id' => 1])
@@ -553,7 +553,7 @@ class TrashBehaviorTest extends TestCase
         $this->Articles->behaviors()->get('Trash')->setConfig('cascadeOnTrash', false);
 
         $article = $this->Articles->get(1);
-        $this->Articles->trash($article);
+        $this->Articles->getBehavior('Trash')->trash($article);
 
         $article = $this->Articles->find('withTrashed')
             ->where(['Articles.id' => 1])
@@ -575,10 +575,10 @@ class TrashBehaviorTest extends TestCase
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
-        $this->Articles->Comments->getTarget()->trashAll([]);
+        $this->Articles->Comments->getTarget()->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->Comments->getTarget()->find()->count());
 
-        $this->Articles->trashAll([]);
+        $this->Articles->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
 
         $article = $this->Articles
@@ -615,7 +615,7 @@ class TrashBehaviorTest extends TestCase
             }
         );
 
-        $result = $this->Articles->cascadingRestoreTrash($article, [
+        $result = $this->Articles->getBehavior('Trash')->cascadingRestoreTrash($article, [
             'restoreOptions' => true,
         ]);
 
@@ -641,13 +641,13 @@ class TrashBehaviorTest extends TestCase
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
-        $this->Articles->Comments->getTarget()->trashAll([]);
+        $this->Articles->Comments->getTarget()->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->Comments->getTarget()->find()->count());
 
-        $this->Articles->CompositeArticlesUsers->getTarget()->trashAll([]);
+        $this->Articles->CompositeArticlesUsers->getTarget()->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->getTarget()->find()->count());
 
-        $this->Articles->trashAll([]);
+        $this->Articles->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
 
         $article = $this->Articles
@@ -690,7 +690,7 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertInstanceOf(
             EntityInterface::class,
-            $this->Articles->cascadingRestoreTrash($article)
+            $this->Articles->getBehavior('Trash')->cascadingRestoreTrash($article)
         );
 
         $article = $this->Articles
@@ -735,13 +735,13 @@ class TrashBehaviorTest extends TestCase
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
 
-        $this->Articles->Comments->getTarget()->trashAll([]);
+        $this->Articles->Comments->getTarget()->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->Comments->getTarget()->find()->count());
 
-        $this->Articles->CompositeArticlesUsers->getTarget()->trashAll([]);
+        $this->Articles->CompositeArticlesUsers->getTarget()->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->CompositeArticlesUsers->getTarget()->find()->count());
 
-        $this->Articles->trashAll([]);
+        $this->Articles->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
 
         $article = $this->Articles
@@ -766,7 +766,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
         $this->assertInstanceOf(DateTime::class, $article->composite_articles_users[0]->trashed);
 
-        $this->assertEquals(8, $this->Articles->cascadingRestoreTrash());
+        $this->assertEquals(8, $this->Articles->getBehavior('Trash')->cascadingRestoreTrash());
 
         $article = $this->Articles
             ->find()
@@ -793,14 +793,15 @@ class TrashBehaviorTest extends TestCase
         $association = $this->Articles->Comments;
         $association->setDependent(true);
         $association->setCascadeCallbacks(true);
-        $association->getEventManager()->on('Model.beforeSave', function () {
-            return false;
+        $association->getEventManager()->on('Model.beforeSave', function ($event) {
+            $event->setResult(false);
+            $event->stopPropagation();
         });
 
-        $association->getTarget()->trashAll([]);
+        $association->getTarget()->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $association->getTarget()->find()->count());
 
-        $this->Articles->trashAll([]);
+        $this->Articles->getBehavior('Trash')->trashAll([]);
         $this->assertEquals(0, $this->Articles->find()->count());
 
         $article = $this->Articles
@@ -808,7 +809,7 @@ class TrashBehaviorTest extends TestCase
             ->where(['Articles.id' => 1])
             ->first();
 
-        $this->assertFalse($this->Articles->cascadingRestoreTrash($article));
+        $this->assertFalse($this->Articles->getBehavior('Trash')->cascadingRestoreTrash($article));
     }
 
     /**

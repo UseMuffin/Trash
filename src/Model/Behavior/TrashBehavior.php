@@ -160,7 +160,7 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $entity->set($this->getTrashField(false), new DateTime());
+        $entity->patch([$this->getTrashField(false) => new DateTime()]);
 
         return (bool)$this->_table->save($entity, $options);
     }
@@ -287,7 +287,7 @@ class TrashBehavior extends Behavior
             if ($entity->isDirty()) {
                 throw new CakeException('Can not restore from a dirty entity.');
             }
-            $entity->set($data, ['guard' => false]);
+            $entity->patch($data, ['guard' => false]);
 
             return $this->_table->save($entity, $options);
         }
@@ -313,7 +313,9 @@ class TrashBehavior extends Behavior
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
                     if ($result > 1) {
-                        $result += $association->getTarget()->cascadingRestoreTrash(null, $options);
+                        /** @var \Muffin\Trash\Model\Behavior\TrashBehavior $behavior */
+                        $behavior = $association->getTarget()->getBehavior('Trash');
+                        $result += $behavior->cascadingRestoreTrash(null, $options);
                     }
                 } else {
                     /** @var list<string> $foreignKey */
@@ -323,10 +325,10 @@ class TrashBehavior extends Behavior
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
 
                     foreach ($association->find('withTrashed')->where($conditions) as $related) {
+                        /** @var \Muffin\Trash\Model\Behavior\TrashBehavior $behavior */
+                        $behavior = $association->getTarget()->getBehavior('Trash');
                         if (
-                            !$association
-                                ->getTarget()
-                                ->cascadingRestoreTrash($related, ['_primary' => false] + $options)
+                            !$behavior->cascadingRestoreTrash($related, ['_primary' => false] + $options)
                         ) {
                             $result = false;
                         }
