@@ -160,7 +160,12 @@ class TrashBehavior extends Behavior
             }
         }
 
-        $entity->patch([$this->getTrashField(false) => new DateTime()]);
+        /** @phpstan-ignore function.alreadyNarrowedType */
+        if (method_exists($entity, 'patch')) {
+            $entity->patch([$this->getTrashField(false) => new DateTime()]);
+        } else {
+            $entity->set($this->getTrashField(false), new DateTime());
+        }
 
         return (bool)$this->_table->save($entity, $options);
     }
@@ -258,7 +263,7 @@ class TrashBehavior extends Behavior
     {
         return $this->_table->updateAll(
             [$this->getTrashField(false) => new DateTime()],
-            $conditions
+            $conditions,
         );
     }
 
@@ -287,7 +292,13 @@ class TrashBehavior extends Behavior
             if ($entity->isDirty()) {
                 throw new CakeException('Can not restore from a dirty entity.');
             }
-            $entity->patch($data, ['guard' => false]);
+
+            /** @phpstan-ignore function.alreadyNarrowedType */
+            if (method_exists($entity, 'patch')) {
+                $entity->patch($data, ['guard' => false]);
+            } else {
+                $entity->set($data, ['guard' => false]);
+            }
 
             return $this->_table->save($entity, $options);
         }
@@ -304,18 +315,21 @@ class TrashBehavior extends Behavior
      */
     public function cascadingRestoreTrash(
         ?EntityInterface $entity = null,
-        array $options = []
+        array $options = [],
     ): bool|int|EntityInterface {
         $result = $this->restoreTrash($entity, $options);
+        $return = $result;
 
         $associations = $this->_table->associations()->getByType(['HasOne', 'HasMany']);
         foreach ($associations as $association) {
             if ($this->_isRecursable($association, $this->_table)) {
                 if ($entity === null) {
-                    if ($result > 1) {
+                    if ($result > 0) {
                         /** @var \Muffin\Trash\Model\Behavior\TrashBehavior $behavior */
                         $behavior = $association->getTarget()->getBehavior('Trash');
-                        $result += $behavior->cascadingRestoreTrash(null, $options);
+                        if ($behavior->cascadingRestoreTrash(null, $options) === false) {
+                            $return = false;
+                        }
                     }
                 } else {
                     /** @var list<string> $foreignKey */
@@ -324,20 +338,21 @@ class TrashBehavior extends Behavior
                     $bindingKey = (array)$association->getBindingKey();
                     $conditions = array_combine($foreignKey, $entity->extract($bindingKey));
 
-                    foreach ($association->find('withTrashed')->where($conditions) as $related) {
+                    /** @var \Cake\Datasource\EntityInterface $related */
+                    foreach ($association->find('withTrashed')->where($conditions)->all() as $related) {
                         /** @var \Muffin\Trash\Model\Behavior\TrashBehavior $behavior */
                         $behavior = $association->getTarget()->getBehavior('Trash');
                         if (
-                            !$behavior->cascadingRestoreTrash($related, ['_primary' => false] + $options)
+                            $behavior->cascadingRestoreTrash($related, ['_primary' => false] + $options) === false
                         ) {
-                            $result = false;
+                            $return = false;
                         }
                     }
                 }
             }
         }
 
-        return $result;
+        return $return;
     }
 
     /**

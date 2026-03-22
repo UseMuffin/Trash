@@ -23,5 +23,8 @@
 
         <DocblockTypeContradiction errorLevel="info" />
         <RedundantConditionGivenDocblockType errorLevel="info" />
+
+        <ClassMustBeFinal errorLevel="info" />
+        <MissingOverrideAttribute errorLevel="info" />
     </issueHandlers>
 </psalm>

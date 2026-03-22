@@ -3,6 +3,5 @@ parameters:
 	paths:
 		- src/
 	ignoreErrors:
-		- '#Call to an undefined method Cake\\ORM\\Table::cascadingRestoreTrash\(\)#'
 		- identifier: missingType.iterableValue
 		- identifier: missingType.generics

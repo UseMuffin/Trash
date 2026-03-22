@@ -16,6 +16,7 @@ use Cake\ORM\Table;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
 use Muffin\Trash\Model\Behavior\TrashBehavior;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TrashBehaviorTest extends TestCase
 {
@@ -58,7 +59,7 @@ class TrashBehaviorTest extends TestCase
 
         $this->CompositeArticlesUsers = $this->getTableLocator()->get(
             'Muffin/Trash.CompositeArticlesUsers',
-            ['table' => 'trash_composite_articles_users']
+            ['table' => 'trash_composite_articles_users'],
         );
         $this->CompositeArticlesUsers->addBehavior('Muffin/Trash.Trash');
 
@@ -129,7 +130,7 @@ class TrashBehaviorTest extends TestCase
         $query = $this->Articles->find('all');
 
         $result = $query->where(
-            [$this->Articles->aliasField('trashed') . ' >= ' => new DateTime('-1 day')]
+            [$this->Articles->aliasField('trashed') . ' >= ' => new DateTime('-1 day')],
         )->toArray();
         $this->assertCount(2, $result);
     }
@@ -179,7 +180,7 @@ class TrashBehaviorTest extends TestCase
                 $entity->setError('id', 'Save aborted');
                 $event->setResult(false);
                 $event->stopPropagation();
-            }
+            },
         );
 
         $result = $this->Articles->delete($article);
@@ -223,7 +224,7 @@ class TrashBehaviorTest extends TestCase
                 if (isset($options['deleteOptions'])) {
                     $hasDeleteOptionsBefore = true;
                 }
-            }
+            },
         );
         $this->Comments->getEventManager()->on(
             'Model.afterDelete',
@@ -231,7 +232,7 @@ class TrashBehaviorTest extends TestCase
                 if (isset($options['deleteOptions'])) {
                     $hasDeleteOptionsAfter = true;
                 }
-            }
+            },
         );
 
         $article = $this->Articles->get(1);
@@ -265,24 +266,24 @@ class TrashBehaviorTest extends TestCase
                 if (isset($options['deleteOptions'])) {
                     $mainHasDeleteOptions = true;
                 }
-            }
+            },
         );
         $this->Comments->getEventManager()->on(
             'Model.beforeSave',
             function (
                 Event $event,
                 EntityInterface $entity,
-                ArrayObject $options
+                ArrayObject $options,
             ) use (
                 &$dependentHasDeleteOptions,
-                &$dependentIsNotPrimary
+                &$dependentIsNotPrimary,
             ) {
                 if (isset($options['deleteOptions'])) {
                     $dependentHasDeleteOptions = true;
                 }
 
                 $dependentIsNotPrimary = $options['_primary'] === false;
-            }
+            },
         );
 
         $article = $this->Articles->get(1);
@@ -329,7 +330,7 @@ class TrashBehaviorTest extends TestCase
             $this->getTableLocator()
                 ->get('ArticlesUsers', ['table' => 'trash_articles_users'])
                 ->find()
-                ->count()
+                ->count(),
         );
     }
 
@@ -595,24 +596,24 @@ class TrashBehaviorTest extends TestCase
                 if (isset($options['restoreOptions'])) {
                     $mainHasRestoreOptions = true;
                 }
-            }
+            },
         );
         $this->Comments->getEventManager()->on(
             'Model.beforeSave',
             function (
                 Event $event,
                 EntityInterface $entity,
-                ArrayObject $options
+                ArrayObject $options,
             ) use (
                 &$dependentHasRestoreOptions,
-                &$dependentIsNotPrimary
+                &$dependentIsNotPrimary,
             ) {
                 if (isset($options['restoreOptions'])) {
                     $dependentHasRestoreOptions = true;
                 }
 
                 $dependentIsNotPrimary = $options['_primary'] === false;
-            }
+            },
         );
 
         $result = $this->Articles->getBehavior('Trash')->cascadingRestoreTrash($article, [
@@ -690,7 +691,7 @@ class TrashBehaviorTest extends TestCase
 
         $this->assertInstanceOf(
             EntityInterface::class,
-            $this->Articles->getBehavior('Trash')->cascadingRestoreTrash($article)
+            $this->Articles->getBehavior('Trash')->cascadingRestoreTrash($article),
         );
 
         $article = $this->Articles
@@ -766,7 +767,7 @@ class TrashBehaviorTest extends TestCase
         $this->assertNotEmpty($article->composite_articles_users[0]->trashed);
         $this->assertInstanceOf(DateTime::class, $article->composite_articles_users[0]->trashed);
 
-        $this->assertEquals(8, $this->Articles->getBehavior('Trash')->cascadingRestoreTrash());
+        $this->assertEquals(3, $this->Articles->getBehavior('Trash')->cascadingRestoreTrash());
 
         $article = $this->Articles
             ->find()
@@ -903,7 +904,7 @@ class TrashBehaviorTest extends TestCase
     {
         $this->assertEquals(
             'Articles.trashed',
-            $this->Articles->behaviors()->get('Trash')->getTrashField()
+            $this->Articles->behaviors()->get('Trash')->getTrashField(),
         );
     }
 
@@ -923,11 +924,11 @@ class TrashBehaviorTest extends TestCase
     /**
      * Test the implementedEvents method.
      *
-     * @dataProvider provideConfigsForImplementedEventsTest
      * @param array $config Initial behavior config.
      * @param array $implementedEvents Expected implementedEvents.
      * @return void
      */
+    #[DataProvider('provideConfigsForImplementedEventsTest')]
     public function testImplementedEvents(array $config, array $implementedEvents)
     {
         $trash = new TrashBehavior($this->Users, $config);
@@ -942,6 +943,9 @@ class TrashBehaviorTest extends TestCase
      */
     public static function provideConfigsForImplementedEventsTest()
     {
+        $callable = function () {
+        };
+
         return [
             'No event config inherits default events' => [
                 [],
@@ -1001,8 +1005,7 @@ class TrashBehaviorTest extends TestCase
                 [
                     'events' => [
                         'Model.beforeDelete' => [
-                            'callable' => function () {
-                            },
+                            'callable' => $callable,
                         ],
                         'Model.beforeFind' => [
                             'callable' => ['', 'beforeDelete'],
@@ -1012,8 +1015,7 @@ class TrashBehaviorTest extends TestCase
                 ],
                 [
                     'Model.beforeDelete' => [
-                        'callable' => function () {
-                        },
+                        'callable' => $callable,
                     ],
                     'Model.beforeFind' => [
                         'callable' => ['', 'beforeDelete'],
