@@ -160,12 +160,7 @@ class TrashBehavior extends Behavior
             }
         }
 
-        /** @phpstan-ignore function.alreadyNarrowedType */
-        if (method_exists($entity, 'patch')) {
-            $entity->patch([$this->getTrashField(false) => new DateTime()]);
-        } else {
-            $entity->set($this->getTrashField(false), new DateTime());
-        }
+        $entity->set($this->getTrashField(false), new DateTime());
 
         return (bool)$this->_table->save($entity, $options);
     }
