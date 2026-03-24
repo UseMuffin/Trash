@@ -162,7 +162,7 @@ class TrashBehavior extends Behavior
 
         /** @phpstan-ignore function.alreadyNarrowedType */
         if (method_exists($entity, 'patch')) {
-            $entity->patch([$this->getTrashField(false) => new DateTime()]);
+            $entity->patch([$this->getTrashField(false) => new DateTime()], ['guard' => false]);
         } else {
             $entity->set($this->getTrashField(false), new DateTime());
         }
