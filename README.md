@@ -24,6 +24,8 @@ bin/cake plugin load Muffin/Trash
 
 ## Usage
 
+To optimize performance, it is highly recommended to add an index to the `trash` column.
+
 In your table(s), add the behavior like you would for any other behavior:
 
 ```php
